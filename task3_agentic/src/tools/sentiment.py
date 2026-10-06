@@ -4,6 +4,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from groq import Groq
+from openai import OpenAI
 from pydantic import BaseModel, Field
 
 load_dotenv()
@@ -58,17 +59,29 @@ def llm_sentiment(headlines: list[Any]) -> dict[str, Any]:
             "No valid headlines provided. "
             "Expected strings or dictionaries containing a 'title' field."
         )    
-    api_key = os.getenv("GROQ_API_KEY")
+    #api_key = os.getenv("GROQ_API_KEY")
+
+    #if not api_key:
+    #    raise RuntimeError("GROQ_API_KEY is not configured")
+
+    # model = os.getenv(
+    #     "GROQ_MODEL",
+    #     "openai/gpt-oss-120b",
+    # )
+
+    # client = Groq(api_key=api_key)
+
+    api_key = os.getenv("OPENAI_API_KEY")
 
     if not api_key:
-        raise RuntimeError("GROQ_API_KEY is not configured")
+        raise RuntimeError("OPENAI_API_KEY is not configured")
 
     model = os.getenv(
-        "GROQ_MODEL",
-        "openai/gpt-oss-120b",
+        "OPENAI_MODEL",
+        "gpt-5.4-mini",
     )
 
-    client = Groq(api_key=api_key)
+    client = OpenAI(api_key=api_key)
 
     headlines_text = "\n".join(
         f"{index + 1}. {headline}"

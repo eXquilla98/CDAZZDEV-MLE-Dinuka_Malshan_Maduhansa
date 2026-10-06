@@ -1,4 +1,7 @@
+import os
 from typing import Any, TypedDict
+
+import time
 
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
@@ -6,6 +9,7 @@ from langchain_core.tools import tool
 from langchain_groq import ChatGroq
 from langgraph.graph import END, START, StateGraph
 from langchain_core.messages import HumanMessage, ToolMessage
+from langchain_openai import ChatOpenAI
 
 from src.models.research_models import ResearchReport
 from src.tools.news import get_news
@@ -13,6 +17,7 @@ from src.tools.price_data import get_price_data
 from src.tools.sentiment import llm_sentiment
 from src.tools.volatility import calculate_volatility
 from src.tools.web_search import web_search
+from src.observability.trace import write_trace
 
 
 load_dotenv()
@@ -104,8 +109,12 @@ RESEARCH_TOOLS = [
 # 3. LLM
 # ============================================================
 
-llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+#llm = ChatGroq(
+#    model="openai/gpt-oss-120b",
+#    temperature=0,
+#)
+llm = ChatOpenAI(
+    model=os.getenv("OPENAI_MODEL", "gpt-5.4-mini"),
     temperature=0,
 )
 
@@ -119,45 +128,126 @@ llm_with_tools = llm.bind_tools(RESEARCH_TOOLS)
 def agent_node(state: ResearchState) -> dict:
     """
     Ask the LLM what information it needs next.
+
+    The LLM receives a compact representation of the current
+    research state instead of the entire accumulated message history.
     """
 
     messages = list(state["messages"])
 
-    if not messages:
-        messages.append(
-            HumanMessage(
-                content=(
-                    "You are a financial research agent.\n\n"
-                    f"Ticker: {state['ticker']}\n"
-                    f"Research request: {state['user_query']}\n\n"
+    required_tools = {
+        "price_data_tool",
+        "news_tool",
+        "volatility_tool",
+        "sentiment_tool",
+        "web_search_tool",
+    }
 
-                    "Your job is to autonomously gather enough evidence "
-                    "to produce the requested financial research report.\n\n"
+    successful_tools = {
+        observation["tool"]
+        for observation in state["observations"]
+    }
 
-                    "Required evidence categories:\n"
-                    "1. Recent market/news information.\n"
-                    "2. Price and technical indicators.\n"
-                    "3. Historical volatility.\n"
-                    "4. LLM-based news sentiment.\n"
-                    "5. Fundamental or analyst commentary from web search.\n\n"
+    missing_tools = required_tools - successful_tools
 
-                    "Decision rules:\n"
-                    "- Choose the next tool based on the evidence already collected.\n"
-                    "- Before requesting another tool, check which evidence "
-                    "categories are still missing.\n"
-                    "- Prioritize missing evidence over repeating a tool whose "
-                    "information is already available.\n"
-                    "- Do not repeat a tool unless the previous result failed, "
-                    "was incomplete, or additional information is genuinely needed.\n"
-                    "- Once all required evidence categories are available, "
-                    "stop requesting tools and provide the final answer.\n"
-                    "- Do not invent financial data or facts.\n"
-                    "- Use only information returned by the tools for factual claims.\n"
-                    "- If a tool fails, adapt and try another valid approach.\n"
-                )
-            )
+    compact_observations = []
+
+    for observation in state["observations"]:
+        tool_name = observation["tool"]
+        result = observation["result"]
+
+        if tool_name == "price_data_tool":
+            compact_result = {
+                "ticker": result.get("ticker"),
+                "period": result.get("period"),
+                "latest_price": result.get("latest_price"),
+                "indicators": result.get("indicators"),
+            }
+
+        elif tool_name == "news_tool":
+            compact_result = [
+                {
+                    "title": item.get("title"),
+                    "publisher": item.get("publisher"),
+                }
+                for item in result[:5]
+            ]
+
+        elif tool_name == "volatility_tool":
+            compact_result = {
+                "ticker": result.get("ticker"),
+                "window": result.get("window"),
+                "daily_volatility": result.get("daily_volatility"),
+                "annualized_volatility": result.get("annualized_volatility"),
+            }
+
+        elif tool_name == "sentiment_tool":
+            compact_result = result
+
+        elif tool_name == "web_search_tool":
+            compact_result = [
+                {
+                    "title": item.get("title"),
+                    "snippet": item.get("snippet"),
+                }
+                for item in result[:3]
+            ]
+
+        else:
+            compact_result = result
+
+        compact_observations.append(
+            {
+                "tool": tool_name,
+                "result": compact_result,
+            }
         )
-    response = llm_with_tools.invoke(messages)
+
+    decision_prompt = f"""
+You are a financial research agent.
+
+Ticker: {state["ticker"]}
+
+Research request:
+{state["user_query"]}
+
+Research status:
+
+Successfully completed tools:
+{sorted(successful_tools)}
+
+Missing evidence tools:
+{sorted(missing_tools)}
+
+Evidence already collected:
+{compact_observations}
+
+Tool errors:
+{state["errors"]}
+
+Choose the next action based on the current evidence.
+
+Rules:
+- Prioritize missing evidence.
+- Do not repeat a successful tool unless its result is insufficient.
+- Do not call web_search_tool repeatedly when useful web evidence already exists.
+- Use sentiment_tool when recent news is available but LLM-based sentiment evidence is missing.
+- Once all required evidence categories are covered, do not request another tool.
+- Let the available evidence determine your next action.
+- Do not invent financial facts or unsupported claims.
+
+CURRENT-DATE AND RECENCY RULES:
+- The current date is 2026-10-06.
+- Prefer current and recent information relevant to this date.
+- Do not intentionally search for outdated information unless it is specifically needed as historical context.
+- When using web_search_tool for analyst commentary, financial health, valuation, or risks, prefer queries containing terms such as "latest", "current", "recent", or "2026".
+- The analysis concerns the next 90 days from the current date.
+- Do not treat web-search snippets as verified financial statements; use them only as supporting commentary unless the source itself provides the relevant financial data.
+"""
+
+    decision_message = HumanMessage(content=decision_prompt)
+
+    response = llm_with_tools.invoke([decision_message])
 
     messages.append(response)
 
@@ -177,7 +267,6 @@ def agent_node(state: ResearchState) -> dict:
         "tool_calls": tool_calls,
         "iteration": state["iteration"] + 1,
     }
-
 # ============================================================
 # 5. TOOL EXECUTION NODE
 # ============================================================
@@ -219,37 +308,59 @@ def tool_node(state: ResearchState) -> dict:
 
             continue
 
-        try:
-            result = selected_tool.invoke(tool_args)
+        start_time = time.perf_counter()
 
-            observations.append(
-                {
-                    "tool": tool_name,
-                    "arguments": tool_args,
-                    "result": result,
-                }
+    try:
+        result = selected_tool.invoke(tool_args)
+
+        duration_ms = (time.perf_counter() - start_time) * 1000
+
+        observations.append(
+            {
+                "tool": tool_name,
+                "arguments": tool_args,
+                "result": result,
+            }
+        )
+
+        write_trace(
+            tool_name=tool_name,
+            inputs=tool_args,
+            output=result,
+            duration_ms=duration_ms,
+            success=True,
+        )
+
+        messages.append(
+            ToolMessage(
+                content=str(result),
+                tool_call_id=tool_call["id"],
             )
+        )
 
-            messages.append(
-                ToolMessage(
-                    content=str(result),
-                    tool_call_id=tool_call["id"],
-                )
+    except Exception as exc:
+        duration_ms = (time.perf_counter() - start_time) * 1000
+
+        error_message = (
+            f"{tool_name} failed: {str(exc)}"
+        )
+
+        errors.append(error_message)
+
+        write_trace(
+            tool_name=tool_name,
+            inputs=tool_args,
+            output=error_message,
+            duration_ms=duration_ms,
+            success=False,
+        )
+
+        messages.append(
+            ToolMessage(
+                content=error_message,
+                tool_call_id=tool_call["id"],
             )
-
-        except Exception as exc:
-            error_message = (
-                f"{tool_name} failed: {str(exc)}"
-            )
-
-            errors.append(error_message)
-
-            messages.append(
-                ToolMessage(
-                    content=error_message,
-                    tool_call_id=tool_call["id"],
-                )
-            )
+        )
 
     return {
         "messages": messages,
@@ -268,7 +379,7 @@ def report_node(state: ResearchState) -> dict:
 
     for observation in state["observations"]:
         tool_name = observation["tool"]
-        output = observation["output"]
+        output = observation["result"]
 
         if tool_name == "price_data_tool":
             compact_output = {
