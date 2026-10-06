@@ -157,6 +157,13 @@ def calculate_bollinger_bands(
         "bollinger_lower": lower_band,
     })
 
+def safe_float(value: float | int | None) -> float | None:
+    """Convert numeric values to JSON-safe floats."""
+
+    if value is None or pd.isna(value):
+        return None
+
+    return float(value)
 
 def get_price_data(
     ticker: str,
@@ -190,21 +197,23 @@ def get_price_data(
         "rows": len(data),
         "latest_price": float(latest["close"]),
         "indicators": {
-            "sma_50": float(latest["sma_50"]),
-            "sma_200": float(latest["sma_200"]),
-            "rsi_14": float(latest["rsi_14"]),
-            "macd": float(latest["macd"]),
-            "macd_signal": float(latest["macd_signal"]),
-            "macd_histogram": float(
+            "sma_50": safe_float(latest["sma_50"]),
+            "sma_200": safe_float(latest["sma_200"]),
+            "rsi_14": safe_float(latest["rsi_14"]),
+            "macd": safe_float(latest["macd"]),
+            "macd_signal": safe_float(
+                latest["macd_signal"]
+            ),
+            "macd_histogram": safe_float(
                 latest["macd_histogram"]
             ),
-            "bollinger_middle": float(
+            "bollinger_middle": safe_float(
                 latest["bollinger_middle"]
             ),
-            "bollinger_upper": float(
+            "bollinger_upper": safe_float(
                 latest["bollinger_upper"]
             ),
-            "bollinger_lower": float(
+            "bollinger_lower": safe_float(
                 latest["bollinger_lower"]
             ),
         },

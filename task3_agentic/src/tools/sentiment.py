@@ -23,9 +23,13 @@ class SentimentResult(BaseModel):
     headline_analysis: list[HeadlineSentiment]
 
 
-def llm_sentiment(headlines: list[str]) -> dict[str, Any]:
+def llm_sentiment(headlines: list[Any]) -> dict[str, Any]:
     """
     Analyze financial sentiment using an LLM.
+
+    Accepts either:
+    - a list of headline strings
+    - a list of news dictionaries containing a "title" field
 
     Returns validated structured sentiment data.
     """
@@ -33,15 +37,27 @@ def llm_sentiment(headlines: list[str]) -> dict[str, Any]:
     if not headlines:
         raise ValueError("headlines must not be empty")
 
-    valid_headlines = [
-        headline.strip()
-        for headline in headlines
-        if headline and headline.strip()
-    ]
+    valid_headlines: list[str] = []
+
+    for item in headlines:
+        if isinstance(item, str):
+            title = item.strip()
+
+        elif isinstance(item, dict):
+            raw_title = item.get("title")
+            title = str(raw_title).strip() if raw_title else ""
+
+        else:
+            title = ""
+
+        if title:
+            valid_headlines.append(title)
 
     if not valid_headlines:
-        raise ValueError("No valid headlines provided")
-
+        raise ValueError(
+            "No valid headlines provided. "
+            "Expected strings or dictionaries containing a 'title' field."
+        )    
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
