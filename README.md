@@ -1,4 +1,4 @@
-# CDAZZDEV-MLE-Dinuka
+# CDAZZDEV-MLE-Dinuka_Malshan_Maduhansa
 
 Technical assessment submission for the **Senior Machine Learning Engineer** role at **Ceylon Dazzling Dev Holding (Pvt.) Ltd.**
 
