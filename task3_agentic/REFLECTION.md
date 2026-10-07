@@ -1,268 +1,88 @@
-Perfect. Then let's create them now. We should keep them **honest and specific to what you actually used**, especially because the assessment allows AI assistance and expects it to be documented.
-
-## 1. Create `CITATIONS.md`
-
-From PowerShell:
-
-```powershell
-New-Item -ItemType File -Force .\CITATIONS.md
-code .\CITATIONS.md
-```
-
-Paste this:
-
 ```markdown
-# CITATIONS
+# Reflection — Task 3: Agentic Workflows
 
-This document records external libraries, frameworks, APIs, documentation, and AI assistance used during the development of Task 3 — Agentic Workflows.
+## 1. Why I Chose an Agentic Workflow
 
----
+I chose to implement Task 3 as an agentic financial research workflow because the problem requires multiple sources of information, tool selection, iterative reasoning, and coordination between different responsibilities.
 
-## 1. Python Libraries and Frameworks
+A traditional sequential pipeline could call every available tool in a fixed order. However, the assessment specifically requires the agent to decide which tools to use based on observations and demonstrate a tool-call → observation → decision cycle.
 
-### LangChain
+The implementation therefore uses LangChain-based agents with explicit tool boundaries and structured outputs.
 
-Used for LLM integration, tool definitions, message handling, and structured agent workflows.
+The workflow supports:
 
-Repository / documentation:
-
-https://www.langchain.com/
-
-https://docs.langchain.com/
-
----
-
-### LangGraph
-
-Used to implement the stateful Agent A workflow and its tool-calling loop.
-
-Repository / documentation:
-
-https://langchain-ai.github.io/langgraph/
-
----
-
-### Pydantic
-
-Used to define and validate structured outputs exchanged between agents.
-
-Documentation:
-
-https://docs.pydantic.dev/
-
----
-
-### yfinance
-
-Used to retrieve historical stock market data and calculate technical indicators and volatility.
-
-Repository:
-
-https://github.com/ranaroussi/yfinance
-
----
-
-### Groq Python SDK
-
-Used for LLM-based sentiment analysis through the Groq API.
-
-Repository:
-
-https://github.com/groq/groq-python
-
----
-
-### LangChain Groq Integration
-
-Used to integrate Groq models with the LangChain-based agents.
-
-Documentation:
-
-https://docs.langchain.com/oss/python/integrations/providers/groq
-
----
-
-### OpenAI Python SDK
-
-Used as an alternative LLM provider during development and testing.
-
-Documentation:
-
-https://platform.openai.com/docs/
-
----
-
-### DuckDuckGo Search / DDGS
-
-Used to retrieve external web research and analyst commentary.
-
-Repository:
-
-https://github.com/deedy5/ddgs
-
----
-
-### Google News RSS
-
-Used to retrieve recent financial news headlines.
-
-The implementation uses Google News RSS feeds rather than an authenticated news API.
-
----
-
-## 2. AI-Assisted Development
-
-Generative AI tools were used during development as permitted by the technical assessment instructions.
-
-AI assistance was primarily used for:
-
-- Brainstorming and refining the agent architecture
-- Reviewing implementation approaches
-- Debugging Python and LangChain/LangGraph issues
-- Improving prompts
-- Reviewing structured Pydantic models
-- Debugging tool-calling workflows
-- Reviewing error messages
-- Suggesting test strategies
-- Improving documentation
-
-The generated suggestions were reviewed, adapted, tested, and integrated into the implementation manually.
-
-The final implementation was tested locally using the project's virtual environment and API integrations.
-
----
-
-## 3. Original Implementation
-
-The following components were implemented and adapted specifically for this assessment:
-
-- Financial price-data tool
-- Technical indicator calculations
-- Historical volatility tool
-- Financial news retrieval
+- Financial market data analysis
+- Technical indicators
+- Historical volatility
+- News retrieval
 - LLM-based sentiment analysis
-- Web research tool
-- Single-agent research workflow
-- Multi-agent Data Analyst / Research Writer architecture
-- Pydantic agent handoff models
-- Agent clarification loop
-- Persistent JSON research cache
-- Cache-based follow-up agent
-- Agent execution tracing
-- Configurable OpenAI / Groq provider abstraction
+- Web research
+- Multi-agent collaboration
+- Structured agent-to-agent handoffs
+- Clarification between agents
+- Persistent research memory
+- Follow-up questions without re-running external tools
+- Execution tracing and observability
 
----
+## 2. Task 3A — Single Research Agent
 
-## 4. Source Attribution
+The first part of the implementation uses a single research agent with access to five tools:
 
-External libraries and frameworks listed above are used through their documented public APIs.
+- `get_price_data(ticker, period)`
+- `get_news(ticker, n)`
+- `calculate_volatility(ticker, window)`
+- `llm_sentiment(headlines)`
+- `web_search(query)`
 
-No proprietary source code was copied into this repository.
+The agent is given the financial research objective and can decide which tools are required.
 
-Where implementation approaches were informed by documentation or examples, they were adapted to the requirements of this assessment.
-
----
-
-## 5. API Credentials
-
-API credentials are stored locally through environment variables.
-
-The `.env` file is excluded from version control and no API keys are included in this repository.
-
-```
-
----
-
-## 2. Create `REFLECTION.md`
-
-Then:
-
-```powershell
-New-Item -ItemType File -Force .\REFLECTION.md
-code .\REFLECTION.md
-```
-
-Paste this:
-
-```markdown
-# REFLECTION
-
-## Task 3 — Agentic Workflows
-
-This reflection describes the engineering decisions, trade-offs, limitations, and potential improvements of the agentic financial research system implemented for the assessment.
-
----
-
-## 1. Why an Agentic Workflow?
-
-The main objective was to demonstrate a workflow where an LLM can decide which tools are required based on the information available rather than following a completely fixed sequence.
-
-The research process therefore follows a:
+The research loop follows the general pattern:
 
 ```text
-Tool → Observation → Decision
+User Query
+    ↓
+Agent decides what information is required
+    ↓
+Tool call
+    ↓
+Observation
+    ↓
+Agent evaluates the observation
+    ↓
+Additional tool call if required
+    ↓
+Final structured report
 ```
 
-pattern.
+This was important because the task was not simply about calling several APIs. The agent needed to use observations to determine what additional information was necessary.
 
-The agent receives tool results and can determine whether additional information is required before producing its final analysis.
+The final report contains:
 
-This was particularly useful for the financial research task because different parts of the analysis require different sources of information:
+- Financial Health Summary
+- Market Sentiment
+- Top Three Risks
+- Evidence supporting the risks
+- Hedge Strategy Recommendation
 
-- Market data for quantitative analysis
-- News for current events
-- Web research for external commentary
-- LLM reasoning for sentiment and synthesis
+The implementation also includes tool failure handling so that an individual tool failure does not necessarily terminate the entire research process.
 
----
+## 3. Task 3B — Multi-Agent Architecture
 
-## 2. Why Separate Agent A and Agent B?
-
-The multi-agent design separates quantitative analysis from external research.
+For Task 3B, I separated the responsibilities into two agents.
 
 ### Agent A — Data Analyst
 
-Agent A is responsible for:
+Agent A is responsible only for quantitative and sentiment analysis.
 
-- Price data
-- Technical indicators
-- Historical volatility
-- Sentiment analysis
+Its allowed tools are:
 
-### Agent B — Research Writer
+- `get_price_data`
+- `calculate_volatility`
+- `llm_sentiment`
 
-Agent B is responsible for:
+Agent A produces a structured `DataAnalystOutput` object using Pydantic.
 
-- News research
-- Web research
-- External evidence
-- Final report generation
-
-This separation provides clear boundaries for tool access.
-
-It also reduces the likelihood that one agent will use unrelated tools or mix quantitative data collection with external research responsibilities.
-
----
-
-## 3. Why Restrict Tool Access?
-
-Tool restrictions were intentionally implemented at the agent level.
-
-Agent A cannot access news or web-search tools.
-
-Agent B cannot access price, volatility, or sentiment tools.
-
-The goal was to make the responsibilities of each agent explicit rather than allowing every agent to access every available capability.
-
-This also makes the system easier to reason about and test.
-
----
-
-## 4. Why Pydantic for Agent Handoffs?
-
-Agent A passes its analysis to Agent B using structured Pydantic models.
-
-For example, `DataAnalystOutput` contains fields for:
+The output contains information such as:
 
 - Latest price
 - Technical indicators
@@ -272,262 +92,412 @@ For example, `DataAnalystOutput` contains fields for:
 - Sentiment confidence
 - Quantitative findings
 
-Using a schema provides validation between agents and reduces reliance on unstructured natural-language handoffs.
+Agent A does not perform web searches or retrieve external research.
 
-This also makes the output easier to inspect, test, and extend.
+### Agent B — Research Writer
 
----
+Agent B is responsible for external research and report composition.
 
-## 5. Why Add a Clarification Loop?
+Its allowed tools are:
 
-The clarification step was added to demonstrate agent-to-agent collaboration rather than simply running two independent agents.
+- `get_news`
+- `web_search`
 
-Agent B reviews Agent A's structured analysis and identifies one important ambiguity or missing quantitative detail.
+Agent B therefore handles qualitative information while Agent A owns price, volatility, and sentiment analysis.
 
-Agent B then asks Agent A exactly one clarification question.
+This separation was intentional because it reduces overlap between agents and makes the responsibilities easier to reason about and test.
 
-Agent A responds using the information already available in its analysis.
+## 4. Structured Agent Handoff
 
-Agent B incorporates that response into the final report.
+I used Pydantic models for communication between the agents rather than passing arbitrary dictionaries or unstructured text.
 
-This creates a simple critique-and-refinement cycle:
+The main models include:
+
+- `DataAnalystOutput`
+- `ClarificationRequest`
+- `ClarificationResponse`
+- `ResearchReport`
+
+For example, the data analyst output is represented as a typed object containing the ticker, price information, volatility, sentiment, and quantitative findings.
+
+This provides several benefits:
+
+1. The receiving agent knows exactly what information is available.
+2. Required fields are validated automatically.
+3. The workflow becomes easier to debug.
+4. The final output has a predictable schema.
+5. The interface between agents is explicit rather than dependent on prompt formatting.
+
+## 5. Clarification Loop
+
+One of the most important parts of the multi-agent workflow is the clarification cycle.
+
+The workflow is:
 
 ```text
+Agent B
+   ↓
+External research
+   ↓
 Agent A
    ↓
-Agent B Review
+Quantitative analysis
    ↓
-Clarification
+Agent B
    ↓
-Agent A Response
+Clarification request
    ↓
-Agent B Final Report
+Agent A
+   ↓
+Clarification response
+   ↓
+Agent B
+   ↓
+Final report
 ```
 
----
+The clarification is generated automatically by Agent B based on the information received from Agent A.
 
-## 6. Why Persistent JSON Memory?
+During testing, Agent B asked:
 
-Task 3C required short-term follow-up capability without repeating the research process.
+> What time window does the sentiment_score and sentiment_confidence represent?
 
-A JSON cache was chosen because the assessment scope is small and the stored research structure is straightforward.
+Agent A responded that the sentiment tool provided the metrics but the exact time window was not specified in the available data.
 
-The cache is organized by:
+This was useful because the agent did not invent a time period that was not present in the data.
+
+Agent B then incorporated the clarification into the final report.
+
+This demonstrates that the agents are not simply executing independently; they can exchange information and request additional clarification before producing the final output.
+
+## 6. Task 3C — Persistent Memory
+
+For Task 3C, I implemented a persistent JSON research cache.
+
+The cache is stored at:
 
 ```text
-ticker → research date → research data
+memory/research_cache.json
 ```
 
-It stores:
+Research is stored using the ticker and research date:
 
-- Analyst output
-- News results
-- Web results
-- Final report
+```text
+ticker
+    └── date
+          ├── analyst_output
+          ├── news_results
+          ├── web_results
+          └── final_report
+```
 
-This allows a follow-up agent to answer questions using previously generated research.
+For example:
 
-For example, after completing the AAPL research workflow, a follow-up question about the identified risks can be answered from the cached research without calling the research tools again.
+```text
+AAPL
+ └── 2026-10-07
+       ├── analyst_output
+       ├── news_results
+       ├── web_results
+       └── final_report
+```
 
----
+I chose JSON for this assessment because the memory requirement is relatively small and a JSON-based store is simple to inspect, version, and commit alongside the project.
 
-## 7. Why Not Use a Database?
+For a production system, I would consider using a database or dedicated vector/document store depending on the scale and retrieval requirements.
 
-A production system would likely use a persistent database or document store instead of a local JSON file.
+## 7. Follow-Up Agent
 
-For this assessment, JSON provides several advantages:
+The follow-up agent demonstrates that previously collected research can be reused without calling the external research tools again.
 
-- Minimal infrastructure
-- Easy inspection
-- Simple persistence
-- Easy reproduction
-- Human-readable assessment evidence
+For example, after completing the original AAPL research, a follow-up question such as:
 
-If this system were expanded into a production application, the cache layer could be replaced with a database without changing the higher-level agent workflow significantly.
+```text
+What was the main downside risk identified for AAPL?
+```
 
----
+can be answered from the cached research.
 
-## 8. Why Add Execution Tracing?
+The follow-up workflow is:
 
-The `agent_trace.jsonl` file records the execution of tools and important agent events.
+```text
+Follow-Up Question
+       ↓
+Load cached research
+       ↓
+LLM interprets cached information
+       ↓
+Answer
+```
 
-Each record contains:
+No new price, news, volatility, sentiment, or web-search calls are required.
+
+This satisfies the short-term follow-up requirement while avoiding unnecessary external API calls.
+
+## 8. Observability and Agent Trace
+
+I implemented execution tracing using:
+
+```text
+agent_trace.jsonl
+```
+
+Each trace entry records information including:
 
 - Timestamp
 - Agent
 - Event type
 - Tool name
-- Inputs
+- Tool inputs
 - Truncated output
 - Execution duration
-- Success/failure status
+- Success status
 
-This makes the agent workflow inspectable rather than treating the LLM as a black box.
+The tool output is truncated to a maximum of 200 characters to keep the trace manageable.
 
-The trace is particularly useful for debugging:
+The trace allows the execution sequence to be inspected after the workflow completes.
 
-- Unexpected tool selection
-- Failed tool calls
-- Slow operations
-- Agent-to-agent interactions
-- Follow-up cache access
-
----
-
-## 9. LLM Provider Design
-
-The implementation supports both OpenAI and Groq.
-
-The provider selection is centralized in:
+For example, the multi-agent execution produces events corresponding to:
 
 ```text
-src/llm/provider.py
+Agent B → news
+Agent B → web search
+Agent A → price data
+Agent A → volatility
+Agent A → sentiment
+Agent B → clarification request
+Agent A → clarification response
+Agent B → final report
 ```
 
-This allows the same agent implementation to be tested with different providers without changing the agent logic.
+The follow-up agent also records a cache-read event.
 
-The final Task 3 workflow was validated using Groq.
+This was particularly useful during development because it made it possible to verify which agent performed each action and how long individual operations took.
 
-This design also makes it easier to replace the LLM provider in the future.
+## 9. LLM Provider Abstraction
 
----
+I implemented a shared LLM provider configuration so that the application can use different LLM providers without changing the agent implementation.
 
-## 10. Important Trade-offs
+The provider is selected using:
 
-### Multi-agent complexity
+```text
+LLM_PROVIDER
+```
 
-Using multiple agents introduces additional LLM calls and therefore increases latency compared with a single-agent implementation.
+Supported providers are:
 
-However, the separation provides clearer responsibilities and demonstrates structured agent collaboration.
+```text
+openai
+groq
+```
 
-### JSON persistence
+The provider factory is responsible for constructing the appropriate LangChain chat model.
 
-JSON is simple and transparent but does not provide the concurrency, querying, indexing, or transactional guarantees expected from a production database.
+This means the agents do not need to contain provider-specific logic.
 
-### Web research quality
+The configuration can therefore be changed through environment variables rather than modifying the agent code.
 
-External web-search results can vary in relevance and quality.
+I also applied the provider selection to the sentiment analysis component, which uses the provider's API directly.
 
-The system therefore treats web research as supporting evidence rather than assuming every search result is authoritative.
+This allowed me to validate the workflow using Groq while retaining OpenAI compatibility.
 
-### LLM-generated sentiment
+## 10. Design Trade-Offs
 
-Sentiment classification is probabilistic and depends on the supplied headlines and model behavior.
+### JSON Cache vs Database
 
-The system validates the output structure but does not claim that the sentiment score is a ground-truth financial signal.
+I chose a JSON cache because:
 
----
+- The assessment dataset is small.
+- The cache is easy to inspect.
+- It is easy to reproduce locally.
+- It can be committed as assessment evidence.
+- It introduces minimal infrastructure.
 
-## 11. Limitations
+For a production application with many users and frequent updates, a database would be more appropriate.
 
-The current implementation is an assessment-scale prototype rather than a production financial research platform.
+### Two Agents vs One Larger Agent
 
-Some limitations include:
+I intentionally separated the data analyst and research writer.
 
-- Local JSON persistence
-- Dependence on external APIs
-- Dependence on the quality of web-search results
-- No comprehensive market-data validation layer
-- No portfolio-level risk model
-- No real-time streaming market data
-- No automated backtesting of hedge strategies
-- No authentication or multi-user persistence layer
+A single agent would be simpler, but it would have access to every tool and responsibility.
 
-The hedge recommendation is therefore an analytical output of the workflow rather than an automated trading instruction.
+The two-agent design provides:
 
----
+- Clear responsibility boundaries
+- Smaller tool sets
+- Structured communication
+- Easier testing
+- Better observability
+- A natural clarification mechanism
 
-## 12. What I Would Improve for Production
+The trade-off is increased workflow complexity and additional LLM calls.
 
-If developing this system beyond the assessment, I would consider:
+### JSONL Trace vs Full Logging Framework
 
-### Persistent Storage
+A JSONL trace was selected because it is:
 
-Replace the JSON cache with a database or document store.
+- Simple
+- Append-only
+- Human-readable
+- Easy to inspect
+- Easy to process programmatically
 
-### Better Retrieval
+For production use, I would consider a centralized observability system with structured metrics, tracing, error aggregation, and monitoring.
 
-Use a dedicated financial-news/search pipeline with source ranking, deduplication, and relevance scoring.
+## 11. Error Handling
 
-### Evaluation
+External tools can fail because of:
 
-Introduce automated evaluation for:
+- Network errors
+- API limitations
+- Rate limits
+- Invalid tickers
+- Missing data
+- Search failures
 
-- Tool selection
-- Sentiment accuracy
-- Risk identification
-- Citation quality
-- Structured-output validity
+The implementation therefore attempts to prevent an individual tool failure from immediately terminating the entire research process.
+
+The trace also records the success state of tool calls.
+
+This makes failed operations visible during debugging.
+
+A production implementation would additionally include retry policies, exponential backoff, circuit breakers, and more explicit fallback strategies.
+
+## 12. Limitations
+
+There are several limitations in the current implementation.
+
+### Market Data
+
+The financial analysis is based primarily on historical market data and technical indicators.
+
+Technical indicators cannot reliably predict future prices on their own.
+
+### News Data
+
+News availability depends on external news sources and search results.
+
+Search results can change over time and may contain incomplete or duplicated information.
+
+### LLM Sentiment
+
+LLM-based sentiment is inherently probabilistic.
+
+The sentiment score should therefore be treated as an analytical signal rather than an objective measurement.
+
+### Hedge Recommendation
+
+The hedge strategy is generated from the available market information and should not be considered personalized financial advice.
+
+A production financial system would require stronger validation, risk controls, and potentially human review.
+
+### Persistent Memory
+
+The JSON cache is suitable for the assessment but is not designed for concurrent multi-user workloads.
+
+## 13. What I Would Improve for Production
+
+If this system were developed beyond the assessment, I would improve it in several areas.
+
+### Data Layer
+
+I would introduce:
+
+- A dedicated market-data service
+- Database-backed research storage
+- Data freshness validation
+- Historical data versioning
+
+### Agent Reliability
+
+I would add:
+
+- Retry policies
+- Tool timeouts
+- Structured error recovery
+- Agent execution limits
+- More deterministic routing where appropriate
 
 ### Observability
 
-Add centralized tracing and metrics for:
+I would introduce:
 
-- Token usage
-- Latency
-- Tool failures
-- Agent iterations
-- Cost
-- Model performance
+- Centralized tracing
+- Token/cost tracking
+- Latency monitoring
+- Tool success-rate metrics
+- Agent evaluation metrics
 
-### Risk Analysis
+### Evaluation
 
-Extend the financial analysis with:
+I would create an automated evaluation framework measuring:
 
-- Portfolio exposure
-- Beta
-- Value-at-Risk
-- Historical drawdown
-- Options pricing
-- Scenario analysis
-- Hedge backtesting
+- Tool-selection accuracy
+- Factual consistency
+- Risk identification quality
+- Citation quality
+- Structured-output validity
+- Follow-up answer correctness
 
-### Model Routing
+### Security
 
-Use different models based on task complexity.
+Production deployment would also require:
 
-For example:
+- Secret management
+- API authentication
+- Access controls
+- Input validation
+- Rate limiting
+- Audit logging
 
-- Smaller/cheaper model for classification
-- More capable model for final synthesis
-- Specialized financial models for quantitative tasks
+## 14. Key Engineering Lesson
 
----
+The main lesson from this task was that an agentic workflow is not simply an LLM connected to several tools.
 
-## 13. Key Engineering Lesson
+The important engineering challenge is controlling how the system reasons and how information moves between components.
 
-The main lesson from this task was that an agentic system is not simply an LLM connected to several tools.
+The implementation therefore focuses on:
 
-The quality of the system depends heavily on:
-
-- Tool boundaries
-- State management
-- Structured outputs
-- Agent responsibilities
-- Validation
-- Observability
-- Failure handling
-- Memory design
-
-The multi-agent workflow demonstrates these concepts while keeping the implementation small enough to inspect and reproduce.
-
----
-
-## 14. Final Assessment Scope
-
-The implementation focuses on Task 3 — Agentic Workflows.
-
-The final implementation includes:
-
-- Single-agent tool-use workflow
-- Multi-agent workflow
-- Specialized Agent A and Agent B roles
-- Structured Pydantic handoffs
-- Agent clarification loop
-- Persistent JSON research memory
-- Cache-based follow-up questions
-- Execution tracing
-- Configurable OpenAI/Groq providers
-- Groq end-to-end validation
+```text
+Tool boundaries
+      +
+Structured outputs
+      +
+Explicit agent responsibilities
+      +
+Observable execution
+      +
+Persistent memory
+      +
+Controlled follow-up
 ```
 
+The structured handoff between Agent A and Agent B was particularly useful because it made the multi-agent workflow more predictable than relying entirely on free-form natural-language communication.
+
+## 15. Final Assessment Scope
+
+The implementation intentionally focuses on Task 3 of the assessment.
+
+The completed functionality includes:
+
+- [x] Task 3A single research agent
+- [x] Price data tool
+- [x] News retrieval tool
+- [x] Historical volatility tool
+- [x] LLM sentiment tool
+- [x] Web search tool
+- [x] Tool-call → observation → decision cycle
+- [x] Structured financial research report
+- [x] Task 3B multi-agent workflow
+- [x] Data Analyst agent
+- [x] Research Writer agent
+- [x] Pydantic agent handoff
+- [x] Automatic clarification loop
+- [x] Task 3C persistent JSON memory
+- [x] Follow-up without re-running external tools
+- [x] Agent execution tracing
+- [x] OpenAI/Groq provider abstraction
+- [x] Error handling and graceful degradation
+
+The implementation was developed and tested incrementally, with the execution trace and persistent cache retained as evidence of the workflow execution.
+```
