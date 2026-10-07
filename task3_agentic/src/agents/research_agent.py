@@ -551,26 +551,29 @@ research_graph = build_research_graph()
 
 if __name__ == "__main__":
     initial_state: ResearchState = {
-    "ticker": "AAPL",
-    "user_query": (
-        "Analyse the current financial health and market sentiment "
-        "of AAPL. Identify the top three risks to its share price "
-        "over the next 90 days and suggest one data-driven hedge strategy."
-    ),
-    "messages": [],
-    "observations": [],
-    "tool_calls": [],
-    "errors": [],
-    "iteration": 0,
-    "final_report": None,
-}
+        "ticker": "AAPL",
+        "user_query": (
+            "Analyse the current financial health and market sentiment "
+            "of AAPL. Identify the top three risks to its share price "
+            "over the next 90 days and suggest one data-driven hedge strategy."
+        ),
+        "messages": [],
+        "observations": [],
+        "tool_calls": [],
+        "errors": [],
+        "iteration": 0,
+        "final_report": None,
+    }
 
     result = research_graph.invoke(initial_state)
+    report = result["final_report"]
 
-    print("=== FINAL STATE ===")
-    print(result)
+    print("=" * 70)
+    print("TASK 3A — AGENTIC FINANCIAL RESEARCH REPORT")
+    print("=" * 70)
 
     print("\n=== AGENT SUMMARY ===")
+    print(f"Ticker: {result['ticker']}")
     print(f"Iterations: {result['iteration']}")
     print(f"Observations: {len(result['observations'])}")
     print(f"Errors: {len(result['errors'])}")
@@ -580,9 +583,49 @@ if __name__ == "__main__":
         print(f"- {observation['tool']}")
 
     if result["errors"]:
-        print("\n=== ERRORS ===")
+        print("\n=== TOOL ERRORS ===")
         for error in result["errors"]:
             print(f"- {error}")
 
-    print("\n=== FINAL RESEARCH REPORT ===")
-    print(result["final_report"])
+    if not report:
+        print("\nNo final report was generated.")
+        raise SystemExit(1)
+
+    print("\n" + "=" * 70)
+    print("FINANCIAL HEALTH SUMMARY")
+    print("=" * 70)
+    print(report["financial_health_summary"])
+
+    print("\n" + "=" * 70)
+    print("MARKET SENTIMENT")
+    print("=" * 70)
+    print(f"Sentiment: {report['market_sentiment']}")
+    print(f"Sentiment Score: {report['sentiment_score']}")
+
+    print("\n" + "=" * 70)
+    print("TOP THREE RISKS WITH EVIDENCE")
+    print("=" * 70)
+
+    for index, risk in enumerate(report["top_three_risks"], start=1):
+        print(f"\n{index}. {risk['risk']}")
+        print(f"Severity: {risk['severity']}")
+
+        print("Evidence:")
+        for evidence in risk["evidence"]:
+            print(f"  - {evidence}")
+
+    hedge = report["hedge_strategy_recommendation"]
+
+    print("\n" + "=" * 70)
+    print("HEDGE STRATEGY RECOMMENDATION")
+    print("=" * 70)
+    print(f"Strategy: {hedge['strategy']}")
+    print(f"\nRationale: {hedge['rationale']}")
+
+    print("\nData Support:")
+    for evidence in hedge["data_support"]:
+        print(f"  - {evidence}")
+
+    print("\n" + "=" * 70)
+    print("END OF REPORT")
+    print("=" * 70)
