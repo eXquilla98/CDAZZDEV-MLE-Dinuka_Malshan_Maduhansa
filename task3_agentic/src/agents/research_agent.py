@@ -271,57 +271,35 @@ CURRENT-DATE AND RECENCY RULES:
 # 5. TOOL EXECUTION NODE
 # ============================================================
 
-def tool_node(state: ResearchState) -> dict:
-    """
-    Execute tools selected by the LLM and return observations.
-    """
+def tool_node(state: DataAnalystState) -> dict[str, Any]:
+    messages = list(state["messages"])
+    response = messages[-1]
 
     observations = list(state["observations"])
-    errors = list(state["errors"])
-    messages = list(state["messages"])
+    tool_calls = list(state["tool_calls"])
 
-    for tool_call in state["tool_calls"]:
+    tool_messages = []
 
-        tool_name = tool_call["name"]
-        tool_args = tool_call["args"]
+    for call in response.tool_calls:
+        tool_name = call["name"]
+        tool_args = call["args"]
 
-        selected_tool = next(
-            (
-                tool
-                for tool in RESEARCH_TOOLS
-                if tool.name == tool_name
-            ),
-            None,
-        )
-
-        if selected_tool is None:
-            error_message = f"Unknown tool requested: {tool_name}"
-
-            errors.append(error_message)
-
-            messages.append(
-                ToolMessage(
-                    content=error_message,
-                    tool_call_id=tool_call["id"],
-                )
+        if tool_name not in TOOL_MAP:
+            raise ValueError(
+                f"Agent A attempted to use unauthorized tool: "
+                f"{tool_name}"
             )
 
-            continue
+        selected_tool = TOOL_MAP[tool_name]
 
         start_time = time.perf_counter()
 
         try:
             result = selected_tool.invoke(tool_args)
 
-            duration_ms = (time.perf_counter() - start_time) * 1000
-
-            observations.append(
-                {
-                    "tool": tool_name,
-                    "arguments": tool_args,
-                    "result": result,
-                }
-            )
+            duration_ms = (
+                time.perf_counter() - start_time
+            ) * 1000
 
             write_trace(
                 tool_name=tool_name,
@@ -329,45 +307,56 @@ def tool_node(state: ResearchState) -> dict:
                 output=result,
                 duration_ms=duration_ms,
                 success=True,
+                agent="agent_a",
+                event_type="tool_call",
             )
 
-            messages.append(
+            observations.append(
+                {
+                    "tool": tool_name,
+                    "inputs": tool_args,
+                    "output": result,
+                }
+            )
+
+            tool_calls.append(
+                {
+                    "tool": tool_name,
+                    "inputs": tool_args,
+                }
+            )
+
+            tool_messages.append(
                 ToolMessage(
                     content=str(result),
-                    tool_call_id=tool_call["id"],
+                    tool_call_id=call["id"],
                 )
             )
 
         except Exception as exc:
-            duration_ms = (time.perf_counter() - start_time) * 1000
-
-            error_message = (
-                f"{tool_name} failed: {str(exc)}"
-            )
-
-            errors.append(error_message)
+            duration_ms = (
+                time.perf_counter() - start_time
+            ) * 1000
 
             write_trace(
                 tool_name=tool_name,
                 inputs=tool_args,
-                output=error_message,
+                output=str(exc),
                 duration_ms=duration_ms,
                 success=False,
+                agent="agent_a",
+                event_type="tool_call",
             )
 
-            messages.append(
-                ToolMessage(
-                    content=error_message,
-                    tool_call_id=tool_call["id"],
-                )
-            )
+            raise
 
     return {
-        "messages": messages,
+        "messages": messages + tool_messages,
         "observations": observations,
-        "errors": errors,
-        "tool_calls": [],
+        "tool_calls": tool_calls,
     }
+
+
 def report_node(state: ResearchState) -> dict:
     """
     Generate the final structured research report

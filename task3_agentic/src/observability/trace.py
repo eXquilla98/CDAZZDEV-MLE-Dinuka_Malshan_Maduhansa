@@ -8,8 +8,12 @@ TRACE_FILE = Path("agent_trace.jsonl")
 
 
 def _truncate_output(output: Any, max_length: int = 200) -> str:
-    """Convert tool output to a string and truncate it."""
-    text = json.dumps(output, ensure_ascii=False, default=str)
+    """Convert output to a string and truncate it."""
+    text = json.dumps(
+        output,
+        ensure_ascii=False,
+        default=str,
+    )
 
     if len(text) <= max_length:
         return text
@@ -23,11 +27,20 @@ def write_trace(
     output: Any,
     duration_ms: float,
     success: bool,
+    agent: str | None = None,
+    event_type: str = "tool_call",
 ) -> None:
-    """Append one tool execution record to agent_trace.jsonl."""
+    """
+    Append one execution/event record to agent_trace.jsonl.
+
+    The agent and event_type fields are optional so existing
+    Task 3A tracing remains backward compatible.
+    """
 
     trace_record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "agent": agent,
+        "event_type": event_type,
         "tool": tool_name,
         "inputs": inputs,
         "output": _truncate_output(output),
@@ -35,5 +48,14 @@ def write_trace(
         "success": success,
     }
 
-    with TRACE_FILE.open("a", encoding="utf-8") as file:
-        file.write(json.dumps(trace_record, ensure_ascii=False) + "\n")
+    with TRACE_FILE.open(
+        "a",
+        encoding="utf-8",
+    ) as file:
+        file.write(
+            json.dumps(
+                trace_record,
+                ensure_ascii=False,
+            )
+            + "\n"
+        )

@@ -21,100 +21,136 @@ class MultiAgentState(TypedDict):
     ticker: str
     user_query: str
 
-    # Agent A
     analyst_output: DataAnalystOutput | None
 
-    # Agent B
     news_results: list[dict[str, Any]]
     web_results: list[dict[str, Any]]
 
-    # Critique loop
     clarification_request: ClarificationRequest | None
     clarification_response: ClarificationResponse | None
 
-    # Final result
     final_report: ResearchReport | None
+
+
+def extract_headlines(
+    news_results: list[Any],
+) -> list[str]:
+    """
+    Extract headline titles from Agent B's news-tool observations.
+
+    Agent B owns news retrieval.
+    Agent A receives only the resulting headlines for sentiment analysis.
+    """
+
+    headlines: list[str] = []
+
+    for observation in news_results:
+        if not isinstance(observation, list):
+            continue
+
+        for item in observation:
+            if not isinstance(item, dict):
+                continue
+
+            title = item.get("title")
+
+            if isinstance(title, str) and title.strip():
+                headlines.append(title.strip())
+
+    # Remove duplicates while preserving order.
+    return list(dict.fromkeys(headlines))
 
 
 def run_task_3b(
     ticker: str,
     user_query: str,
-    sentiment_headlines: list[str] | None = None,
 ) -> ResearchReport:
 
-    state: MultiAgentState = {
-        "ticker": ticker.upper().strip(),
-        "user_query": user_query,
-        "analyst_output": None,
-        "news_results": [],
-        "web_results": [],
-        "clarification_request": None,
-        "clarification_response": None,
-        "final_report": None,
-    }
+    print("\n=== TASK 3B MULTI-AGENT WORKFLOW ===\n")
 
-    # =========================================================
-    # STEP 1 — AGENT A
-    # =========================================================
+    # ---------------------------------------------------------
+    # STEP 1 — Agent B retrieves external research
+    # ---------------------------------------------------------
 
-    print("\n[1/5] Agent A — Data Analyst")
+    print("[1/6] Agent B — External Research")
+
+    news_results, web_results = run_research_tools(
+        ticker=ticker,
+        user_query=user_query,
+    )
+
+    print(f"      News observations: {len(news_results)}")
+    print(f"      Web observations: {len(web_results)}")
+
+    # ---------------------------------------------------------
+    # STEP 2 — Automatically pass news headlines to Agent A
+    # ---------------------------------------------------------
+
+    sentiment_headlines = extract_headlines(news_results)
+
+    print(
+        f"      Headlines passed to Agent A: "
+        f"{len(sentiment_headlines)}"
+    )
+
+    if not sentiment_headlines:
+        print(
+            "      Warning: No headlines were available "
+            "for sentiment analysis."
+        )
+
+    # ---------------------------------------------------------
+    # STEP 3 — Agent A performs quantitative analysis
+    # ---------------------------------------------------------
+
+    print("\n[2/6] Agent A — Data Analysis")
 
     analyst_output = run_data_analyst(
-        ticker=state["ticker"],
-        user_query=state["user_query"],
+        ticker=ticker,
+        user_query=user_query,
         sentiment_headlines=sentiment_headlines,
     )
 
-    state["analyst_output"] = analyst_output
-
-    print("Agent A completed structured analysis.")
-
-    # =========================================================
-    # STEP 2 — AGENT B RESEARCH
-    # =========================================================
-
-    print("\n[2/5] Agent B — External Research")
-
-    news_results, web_results = run_research_tools(
-        ticker=state["ticker"],
-        user_query=state["user_query"],
+    print(
+        f"      Latest price: "
+        f"{analyst_output.latest_price}"
     )
-
-    state["news_results"] = news_results
-    state["web_results"] = web_results
 
     print(
-        f"Agent B gathered "
-        f"{len(news_results)} news result group(s) and "
-        f"{len(web_results)} web result group(s)."
+        f"      Volatility: "
+        f"{analyst_output.annualized_volatility:.4f}"
     )
 
-    # =========================================================
-    # STEP 3 — AGENT B REQUESTS CLARIFICATION
-    # =========================================================
+    print(
+        f"      Sentiment: "
+        f"{analyst_output.market_sentiment} "
+        f"({analyst_output.sentiment_score:.3f})"
+    )
 
-    print("\n[3/5] Agent B — Clarification Request")
+    # ---------------------------------------------------------
+    # STEP 4 — Agent B requests clarification
+    # ---------------------------------------------------------
+
+    print("\n[3/6] Agent B — Clarification Request")
 
     clarification_request = create_clarification_request(
-        analyst_output=state["analyst_output"],
-        user_query=state["user_query"],
+        analyst_output=analyst_output,
+        user_query=user_query,
     )
-
-    state["clarification_request"] = clarification_request
 
     print(
-        "Agent B asks Agent A:\n"
-        f"  {clarification_request.question}"
+        f"      Question: "
+        f"{clarification_request.question}"
     )
 
-    # =========================================================
-    # STEP 4 — AGENT A RESPONDS
-    # =========================================================
+    # ---------------------------------------------------------
+    # STEP 5 — Agent A responds to clarification
+    # ---------------------------------------------------------
 
-    print("\n[4/5] Agent A — Clarification Response")
+    print("\n[4/6] Agent A — Clarification Response")
 
     raw_response = answer_clarification(
-        analyst_output=state["analyst_output"],
+        analyst_output=analyst_output,
         question=clarification_request.question,
     )
 
@@ -122,31 +158,27 @@ def run_task_3b(
         raw_response
     )
 
-    state["clarification_response"] = clarification_response
-
     print(
-        "Agent A responds:\n"
-        f"  {clarification_response.answer}"
+        f"      Answer: "
+        f"{clarification_response.answer}"
     )
 
-    # =========================================================
-    # STEP 5 — AGENT B FINAL REPORT
-    # =========================================================
+    # ---------------------------------------------------------
+    # STEP 6 — Agent B writes final report
+    # ---------------------------------------------------------
 
-    print("\n[5/5] Agent B — Final Report")
+    print("\n[5/6] Agent B — Final Research Report")
 
     final_report = generate_final_report(
-        user_query=state["user_query"],
-        analyst_output=state["analyst_output"],
-        clarification_request=state["clarification_request"],
-        clarification_response=state["clarification_response"].answer,
-        news_results=state["news_results"],
-        web_results=state["web_results"],
+        user_query=user_query,
+        analyst_output=analyst_output,
+        clarification_request=clarification_request,
+        clarification_response=clarification_response.answer,
+        news_results=news_results,
+        web_results=web_results,
     )
 
-    state["final_report"] = final_report
-
-    print("Agent B completed the final report.")
+    print("\n[6/6] Workflow Complete")
 
     return final_report
 
@@ -156,56 +188,13 @@ if __name__ == "__main__":
     QUERY = (
         "Analyse the current financial health and market sentiment "
         "of AAPL. Identify the top three risks to its share price "
-        "over the next 90 days and suggest one data-driven hedge "
-        "strategy."
+        "over the next 90 days and suggest one data-driven hedge strategy."
     )
-
-    # These headlines are supplied to Agent A only for sentiment
-    # analysis. Agent A does not retrieve news itself.
-    SENTIMENT_HEADLINES = [
-        "Apple shares rise as investors assess new AI developments.",
-        "Apple faces higher costs from memory and component prices.",
-    ]
 
     report = run_task_3b(
         ticker="AAPL",
         user_query=QUERY,
-        sentiment_headlines=SENTIMENT_HEADLINES,
     )
 
-    print("\n")
-    print("=" * 70)
-    print("TASK 3B — MULTI-AGENT FINANCIAL RESEARCH REPORT")
-    print("=" * 70)
-
-    print("\nFINANCIAL HEALTH SUMMARY")
-    print(report.financial_health_summary)
-
-    print("\nMARKET SENTIMENT")
-    print(
-        f"{report.market_sentiment} "
-        f"(score={report.sentiment_score:.2f})"
-    )
-
-    print("\nTOP THREE RISKS")
-    for index, risk in enumerate(
-        report.top_three_risks,
-        start=1,
-    ):
-        print(f"\n{index}. {risk.risk}")
-        print(f"Severity: {risk.severity}")
-
-        for evidence in risk.evidence:
-            print(f"   - {evidence}")
-
-    print("\nHEDGE STRATEGY RECOMMENDATION")
-    print(
-        f"Strategy: "
-        f"{report.hedge_strategy_recommendation.strategy}"
-    )
-    print(
-        f"Rationale: "
-        f"{report.hedge_strategy_recommendation.rationale}"
-    )
-
-    print("\n" + "=" * 70)
+    print("\n=== FINAL REPORT ===\n")
+    print(report.model_dump_json(indent=2))

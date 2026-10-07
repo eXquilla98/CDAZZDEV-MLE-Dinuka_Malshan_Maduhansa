@@ -1,15 +1,26 @@
+import time
 from typing import Any, TypedDict
+from dotenv import load_dotenv
 
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+load_dotenv()
+
+from langchain_core.messages import (
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+)
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
-from langchain_groq import ChatGroq
+
+# Alternative provider — uncomment when testing Groq.
+# from langchain_groq import ChatGroq
 
 from src.models.research_models import DataAnalystOutput
+from src.observability.trace import write_trace
 from src.tools.price_data import get_price_data
-from src.tools.volatility import calculate_volatility
 from src.tools.sentiment import llm_sentiment
+from src.tools.volatility import calculate_volatility
 
 
 class DataAnalystState(TypedDict):
@@ -26,7 +37,7 @@ class DataAnalystState(TypedDict):
 @tool
 def price_data_tool(
     ticker: str,
-    period: str = "6mo",
+    period: str = "1y",
 ) -> dict[str, Any]:
     """Get price data and technical indicators for a stock."""
     return get_price_data(ticker, period)
@@ -104,18 +115,29 @@ is unavailable rather than guessing.
 
 
 def build_llm() -> ChatOpenAI:
+    # ---------------------------------------------------------
+    # ACTIVE PROVIDER — OPENAI
+    # ---------------------------------------------------------
     return ChatOpenAI(
         model="gpt-5.4-mini",
         temperature=0,
     )
 
-# def build_llm() -> ChatGroq:
-#     return ChatGroq(
-#         model="openai/gpt-oss-120b",
-#         temperature=0,
-#     )
+    # ---------------------------------------------------------
+    # ALTERNATIVE PROVIDER — GROQ
+    # Uncomment this implementation when performing
+    # the final Groq test.
+    # ---------------------------------------------------------
+    # return ChatGroq(
+    #     model="openai/gpt-oss-120b",
+    #     temperature=0,
+    # )
 
-def analyst_node(state: DataAnalystState) -> dict[str, Any]:
+
+def analyst_node(
+    state: DataAnalystState,
+) -> dict[str, Any]:
+
     llm = build_llm().bind_tools(TOOLS)
 
     messages = list(state["messages"])
@@ -141,7 +163,10 @@ def analyst_node(state: DataAnalystState) -> dict[str, Any]:
     }
 
 
-def tool_node(state: DataAnalystState) -> dict[str, Any]:
+def tool_node(
+    state: DataAnalystState,
+) -> dict[str, Any]:
+
     messages = list(state["messages"])
     response = messages[-1]
 
@@ -156,34 +181,69 @@ def tool_node(state: DataAnalystState) -> dict[str, Any]:
 
         if tool_name not in TOOL_MAP:
             raise ValueError(
-                f"Agent A attempted to use unauthorized tool: {tool_name}"
+                f"Agent A attempted to use unauthorized tool: "
+                f"{tool_name}"
             )
 
         selected_tool = TOOL_MAP[tool_name]
 
-        result = selected_tool.invoke(tool_args)
+        start_time = time.perf_counter()
 
-        observations.append(
-            {
-                "tool": tool_name,
-                "inputs": tool_args,
-                "output": result,
-            }
-        )
+        try:
+            result = selected_tool.invoke(tool_args)
 
-        tool_calls.append(
-            {
-                "tool": tool_name,
-                "inputs": tool_args,
-            }
-        )
+            duration_ms = (
+                time.perf_counter() - start_time
+            ) * 1000
 
-        tool_messages.append(
-            ToolMessage(
-                content=str(result),
-                tool_call_id=call["id"],
+            write_trace(
+                tool_name=tool_name,
+                inputs=tool_args,
+                output=result,
+                duration_ms=duration_ms,
+                success=True,
+                agent="agent_a",
+                event_type="tool_call",
             )
-        )
+
+            observations.append(
+                {
+                    "tool": tool_name,
+                    "inputs": tool_args,
+                    "output": result,
+                }
+            )
+
+            tool_calls.append(
+                {
+                    "tool": tool_name,
+                    "inputs": tool_args,
+                }
+            )
+
+            tool_messages.append(
+                ToolMessage(
+                    content=str(result),
+                    tool_call_id=call["id"],
+                )
+            )
+
+        except Exception as exc:
+            duration_ms = (
+                time.perf_counter() - start_time
+            ) * 1000
+
+            write_trace(
+                tool_name=tool_name,
+                inputs=tool_args,
+                output=str(exc),
+                duration_ms=duration_ms,
+                success=False,
+                agent="agent_a",
+                event_type="tool_call",
+            )
+
+            raise
 
     return {
         "messages": messages + tool_messages,
@@ -192,7 +252,10 @@ def tool_node(state: DataAnalystState) -> dict[str, Any]:
     }
 
 
-def route_after_analyst(state: DataAnalystState) -> str:
+def route_after_analyst(
+    state: DataAnalystState,
+) -> str:
+
     last_message = state["messages"][-1]
 
     if getattr(last_message, "tool_calls", None):
@@ -202,8 +265,14 @@ def route_after_analyst(state: DataAnalystState) -> str:
     return "report"
 
 
-def report_node(state: DataAnalystState) -> dict[str, Any]:
-    llm = build_llm().with_structured_output(DataAnalystOutput)
+def report_node(
+    state: DataAnalystState,
+) -> dict[str, Any]:
+
+    llm = build_llm().with_structured_output(
+    DataAnalystOutput,
+    method="function_calling",
+    )
 
     observations_text = "\n\n".join(
         f"Tool: {observation['tool']}\n"
@@ -255,13 +324,28 @@ If an indicator is unavailable, use null.
 
 
 def build_data_analyst_graph():
+
     graph = StateGraph(DataAnalystState)
 
-    graph.add_node("analyst", analyst_node)
-    graph.add_node("tools", tool_node)
-    graph.add_node("report", report_node)
+    graph.add_node(
+        "analyst",
+        analyst_node,
+    )
 
-    graph.add_edge(START, "analyst")
+    graph.add_node(
+        "tools",
+        tool_node,
+    )
+
+    graph.add_node(
+        "report",
+        report_node,
+    )
+
+    graph.add_edge(
+        START,
+        "analyst",
+    )
 
     graph.add_conditional_edges(
         "analyst",
@@ -272,8 +356,15 @@ def build_data_analyst_graph():
         },
     )
 
-    graph.add_edge("tools", "analyst")
-    graph.add_edge("report", END)
+    graph.add_edge(
+        "tools",
+        "analyst",
+    )
+
+    graph.add_edge(
+        "report",
+        END,
+    )
 
     return graph.compile()
 
@@ -308,6 +399,7 @@ def run_data_analyst(
         result["final_output"]
     )
 
+
 def answer_clarification(
     analyst_output: DataAnalystOutput,
     question: str,
@@ -320,8 +412,9 @@ def answer_clarification(
     from src.models.research_models import ClarificationResponse
 
     llm = build_llm().with_structured_output(
-        ClarificationResponse
-    )
+    ClarificationResponse,
+    method="function_calling",
+)
 
     prompt = f"""
 You are Agent A, the Data Analyst.
@@ -344,19 +437,62 @@ Do not invent new financial data.
 Provide a concise answer and supporting data.
 """
 
-    result = llm.invoke(
-        [
-            SystemMessage(content=SYSTEM_PROMPT),
-            HumanMessage(content=prompt),
-        ]
-    )
+    start_time = time.perf_counter()
 
-    return result.model_dump()
+    try:
+        result = llm.invoke(
+            [
+                SystemMessage(content=SYSTEM_PROMPT),
+                HumanMessage(content=prompt),
+            ]
+        )
+
+        duration_ms = (
+            time.perf_counter() - start_time
+        ) * 1000
+
+        response = result.model_dump()
+
+        write_trace(
+            tool_name="clarification_response",
+            inputs={
+                "question": question,
+            },
+            output=response,
+            duration_ms=duration_ms,
+            success=True,
+            agent="agent_a",
+            event_type="clarification_response",
+        )
+
+        return response
+
+    except Exception as exc:
+
+        duration_ms = (
+            time.perf_counter() - start_time
+        ) * 1000
+
+        write_trace(
+            tool_name="clarification_response",
+            inputs={
+                "question": question,
+            },
+            output=str(exc),
+            duration_ms=duration_ms,
+            success=False,
+            agent="agent_a",
+            event_type="clarification_response",
+        )
+
+        raise
+
 
 if __name__ == "__main__":
+
     query = (
-        "Analyse the current financial health and market sentiment "
-        "of AAPL."
+        "Analyse the current financial health and market "
+        "sentiment of AAPL."
     )
 
     headlines = [
@@ -371,4 +507,8 @@ if __name__ == "__main__":
     )
 
     print("\n=== TASK 3B — AGENT A DATA ANALYST ===")
-    print(output.model_dump_json(indent=2))
+    print(
+        output.model_dump_json(
+            indent=2
+        )
+    )
