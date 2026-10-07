@@ -15,7 +15,7 @@ from src.models.research_models import (
     DataAnalystOutput,
     ResearchReport,
 )
-
+from src.memory.research_cache import save_research
 
 class MultiAgentState(TypedDict):
     ticker: str
@@ -170,13 +170,22 @@ def run_task_3b(
     print("\n[5/6] Agent B — Final Research Report")
 
     final_report = generate_final_report(
-        user_query=user_query,
-        analyst_output=analyst_output,
-        clarification_request=clarification_request,
-        clarification_response=clarification_response.answer,
-        news_results=news_results,
-        web_results=web_results,
+    user_query=user_query,
+    analyst_output=analyst_output,
+    clarification_request=clarification_request,
+    clarification_response=clarification_response.answer,
+    news_results=news_results,
+    web_results=web_results,
     )
+
+    save_research(
+    ticker=ticker,
+    analyst_output=analyst_output.model_dump(),
+    news_results=news_results,
+    web_results=web_results,
+    final_report=final_report.model_dump(),
+    )
+    
 
     print("\n[6/6] Workflow Complete")
 
