@@ -407,8 +407,18 @@ Produce:
 3. Top Three Risks with evidence
 4. Hedge Strategy Recommendation
 
-Use the quantitative information from Agent A,
-the clarification response, and the external research.
+Use only the quantitative information from Agent A,
+the clarification response, and the external research already
+provided in this prompt.
+
+You have already completed the external research phase.
+Do NOT call any tools.
+Do NOT perform additional news searches or web searches.
+Do NOT request additional information.
+
+If some requested detail is unavailable in the provided
+research, explicitly state that the information is unavailable
+rather than attempting another tool call or inventing data.
 
 Do not invent data.
 
