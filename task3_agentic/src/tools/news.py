@@ -1,5 +1,6 @@
 from typing import Any
 from urllib.parse import quote
+import re
 import xml.etree.ElementTree as ET
 
 import requests
@@ -14,12 +15,47 @@ GOOGLE_NEWS_RSS_URL = (
 )
 
 
+COMPANY_ALIASES = {
+    "AAPL": ["apple", "aapl"],
+    "MSFT": ["microsoft", "msft"],
+    "GOOGL": ["google", "alphabet", "googl"],
+    "GOOG": ["google", "alphabet", "goog"],
+    "AMZN": ["amazon", "amzn"],
+    "NVDA": ["nvidia", "nvda"],
+    "META": ["meta", "facebook", "meta platforms"],
+    "TSLA": ["tesla", "tsla"],
+}
+
+
+def _normalize_title(title: str) -> str:
+    """Normalize a headline for duplicate detection."""
+    title = title.lower()
+    title = re.sub(r"[^a-z0-9\s]", " ", title)
+    title = re.sub(r"\s+", " ", title).strip()
+    return title
+
+
+def _is_relevant_headline(title: str, ticker: str) -> bool:
+    """Check whether a headline is relevant to the requested ticker."""
+    normalized_title = _normalize_title(title)
+
+    aliases = COMPANY_ALIASES.get(
+        ticker,
+        [ticker.lower()],
+    )
+
+    return any(
+        alias in normalized_title
+        for alias in aliases
+    )
+
+
 def get_news(
     ticker: str,
     n: int = 10
 ) -> list[dict[str, Any]]:
     """
-    Retrieve recent news headlines for a stock ticker
+    Retrieve recent relevant news headlines for a stock ticker
     using Google News RSS.
 
     Args:
@@ -27,7 +63,7 @@ def get_news(
         n: Maximum number of headlines.
 
     Returns:
-        Structured list of news items.
+        Structured list of relevant, deduplicated news items.
     """
 
     if not ticker:
@@ -61,8 +97,16 @@ def get_news(
     root = ET.fromstring(response.content)
 
     news_items = []
+    seen_titles = set()
 
-    for item in root.findall(".//item")[:n]:
+    # Fetch more candidates than requested because some
+    # results may be irrelevant or duplicates.
+    candidate_items = root.findall(".//item")
+
+    for item in candidate_items:
+        if len(news_items) >= n:
+            break
+
         title = item.findtext("title")
         link = item.findtext("link")
         published_at = item.findtext("pubDate")
@@ -71,9 +115,21 @@ def get_news(
         if not title:
             continue
 
+        title = title.strip()
+
+        if not _is_relevant_headline(title, ticker):
+            continue
+
+        normalized_title = _normalize_title(title)
+
+        if normalized_title in seen_titles:
+            continue
+
+        seen_titles.add(normalized_title)
+
         news_items.append(
             {
-                "title": title.strip(),
+                "title": title,
                 "publisher": (
                     source.strip()
                     if source

@@ -310,57 +310,57 @@ def tool_node(state: ResearchState) -> dict:
 
         start_time = time.perf_counter()
 
-    try:
-        result = selected_tool.invoke(tool_args)
+        try:
+            result = selected_tool.invoke(tool_args)
 
-        duration_ms = (time.perf_counter() - start_time) * 1000
+            duration_ms = (time.perf_counter() - start_time) * 1000
 
-        observations.append(
-            {
-                "tool": tool_name,
-                "arguments": tool_args,
-                "result": result,
-            }
-        )
-
-        write_trace(
-            tool_name=tool_name,
-            inputs=tool_args,
-            output=result,
-            duration_ms=duration_ms,
-            success=True,
-        )
-
-        messages.append(
-            ToolMessage(
-                content=str(result),
-                tool_call_id=tool_call["id"],
+            observations.append(
+                {
+                    "tool": tool_name,
+                    "arguments": tool_args,
+                    "result": result,
+                }
             )
-        )
 
-    except Exception as exc:
-        duration_ms = (time.perf_counter() - start_time) * 1000
-
-        error_message = (
-            f"{tool_name} failed: {str(exc)}"
-        )
-
-        errors.append(error_message)
-
-        write_trace(
-            tool_name=tool_name,
-            inputs=tool_args,
-            output=error_message,
-            duration_ms=duration_ms,
-            success=False,
-        )
-
-        messages.append(
-            ToolMessage(
-                content=error_message,
-                tool_call_id=tool_call["id"],
+            write_trace(
+                tool_name=tool_name,
+                inputs=tool_args,
+                output=result,
+                duration_ms=duration_ms,
+                success=True,
             )
-        )
+
+            messages.append(
+                ToolMessage(
+                    content=str(result),
+                    tool_call_id=tool_call["id"],
+                )
+            )
+
+        except Exception as exc:
+            duration_ms = (time.perf_counter() - start_time) * 1000
+
+            error_message = (
+                f"{tool_name} failed: {str(exc)}"
+            )
+
+            errors.append(error_message)
+
+            write_trace(
+                tool_name=tool_name,
+                inputs=tool_args,
+                output=error_message,
+                duration_ms=duration_ms,
+                success=False,
+            )
+
+            messages.append(
+                ToolMessage(
+                    content=error_message,
+                    tool_call_id=tool_call["id"],
+                )
+            )
 
     return {
         "messages": messages,
@@ -368,7 +368,6 @@ def tool_node(state: ResearchState) -> dict:
         "errors": errors,
         "tool_calls": [],
     }
-
 def report_node(state: ResearchState) -> dict:
     """
     Generate the final structured research report
@@ -504,18 +503,22 @@ def route_after_agent(state: ResearchState) -> str:
     """
 
     # If the LLM selected tools, execute them first.
-    # This check comes before the iteration limit so that
-    # a valid tool request is never abandoned simply because
-    # the current iteration reached the safety limit.
     if state["tool_calls"]:
         if state["iteration"] <= MAX_ITERATIONS:
             return "tools"
 
-    # Stop once all required evidence has been collected.
+    # Stop only when all required evidence has been collected.
     if has_required_evidence(state):
         return "end"
 
-    # Safety fallback.
+    # Required evidence is still missing.
+    # Give the agent another opportunity to select the
+    # missing tool(s), unless the safety limit has been reached.
+    if state["iteration"] <= MAX_ITERATIONS:
+        return "tools"
+
+    # Safety fallback: generate the report using whatever
+    # evidence was successfully collected.
     return "end"
 # ============================================================
 # 7. BUILD GRAPH
