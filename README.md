@@ -904,5 +904,5 @@ This repository submission focuses on:
 **Task 3 — Agentic Workflows**
 
 The implementation demonstrates an end-to-end multi-agent financial research workflow with tool use, structured agent communication, persistent memory, configurable LLM providers, and execution observability.
-```
+
 
