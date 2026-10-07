@@ -1,0 +1,12 @@
+langchain
+langchain-core
+langchain-openai
+langchain-groq
+langgraph
+openai
+groq
+pydantic
+python-dotenv
+yfinance
+ddgs
+feedparser
