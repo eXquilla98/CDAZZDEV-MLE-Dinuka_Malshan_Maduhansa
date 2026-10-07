@@ -71,17 +71,51 @@ def llm_sentiment(headlines: list[Any]) -> dict[str, Any]:
 
     # client = Groq(api_key=api_key)
 
-    api_key = os.getenv("OPENAI_API_KEY")
+    # api_key = os.getenv("OPENAI_API_KEY")
 
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not configured")
+    # if not api_key:
+    #     raise RuntimeError("OPENAI_API_KEY is not configured")
 
-    model = os.getenv(
-        "OPENAI_MODEL",
-        "gpt-5.4-mini",
-    )
+    # model = os.getenv(
+    #     "OPENAI_MODEL",
+    #     "gpt-5.4-mini",
+    # )
 
-    client = OpenAI(api_key=api_key)
+    # client = OpenAI(api_key=api_key)
+
+    provider = os.getenv("LLM_PROVIDER", "openai").lower().strip()
+
+    if provider == "groq":
+        api_key = os.getenv("GROQ_API_KEY")
+
+        if not api_key:
+            raise RuntimeError("GROQ_API_KEY is not configured")
+
+        model = os.getenv(
+            "GROQ_MODEL",
+            "openai/gpt-oss-120b",
+        )
+
+        client = Groq(api_key=api_key)
+
+    elif provider == "openai":
+        api_key = os.getenv("OPENAI_API_KEY")
+
+        if not api_key:
+            raise RuntimeError("OPENAI_API_KEY is not configured")
+
+        model = os.getenv(
+            "OPENAI_MODEL",
+            "gpt-5.4-mini",
+        )
+
+        client = OpenAI(api_key=api_key)
+
+    else:
+        raise ValueError(
+            f"Unsupported LLM_PROVIDER: {provider}. "
+            "Expected 'openai' or 'groq'."
+        )
 
     headlines_text = "\n".join(
         f"{index + 1}. {headline}"

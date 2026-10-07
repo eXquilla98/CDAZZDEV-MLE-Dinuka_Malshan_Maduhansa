@@ -3,8 +3,8 @@ import os
 import time
 
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-
+# from langchain_openai import ChatOpenAI
+from src.llm.provider import build_llm
 from src.memory.research_cache import load_research
 from src.observability.trace import write_trace
 
@@ -12,12 +12,12 @@ from src.observability.trace import write_trace
 load_dotenv()
 
 
-def build_llm() -> ChatOpenAI:
-    """Create the LLM used for cached follow-up questions."""
-    return ChatOpenAI(
-        model=os.getenv("OPENAI_MODEL", "gpt-5.4-mini"),
-        temperature=0,
-    )
+# def build_llm() -> ChatOpenAI:
+#     """Create the LLM used for cached follow-up questions."""
+#     return ChatOpenAI(
+#         model=os.getenv("OPENAI_MODEL", "gpt-5.4-mini"),
+#         temperature=0,
+#     )
 
 
 def answer_followup(

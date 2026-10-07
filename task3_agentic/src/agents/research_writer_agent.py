@@ -10,7 +10,8 @@ from langchain_core.messages import (
     ToolMessage,
 )
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from src.llm.provider import build_llm
 
 # Alternative provider — uncomment when testing Groq.
 # from langchain_groq import ChatGroq
@@ -93,23 +94,23 @@ Use the evidence available to you.
 """
 
 
-def build_llm() -> ChatOpenAI:
-    # ---------------------------------------------------------
-    # ACTIVE PROVIDER — OPENAI
-    # ---------------------------------------------------------
-    return ChatOpenAI(
-        model="gpt-5.4-mini",
-        temperature=0,
-    )
+# def build_llm() -> ChatOpenAI:
+#     # ---------------------------------------------------------
+#     # ACTIVE PROVIDER — OPENAI
+#     # ---------------------------------------------------------
+#     return ChatOpenAI(
+#         model="gpt-5.4-mini",
+#         temperature=0,
+#     )
 
-    # ---------------------------------------------------------
-    # ALTERNATIVE PROVIDER — GROQ
-    # Uncomment when performing the final Groq test.
-    # ---------------------------------------------------------
-    # return ChatGroq(
-    #     model="openai/gpt-oss-120b",
-    #     temperature=0,
-    # )
+#     # ---------------------------------------------------------
+#     # ALTERNATIVE PROVIDER — GROQ
+#     # Uncomment when performing the final Groq test.
+#     # ---------------------------------------------------------
+#     # return ChatGroq(
+#     #     model="openai/gpt-oss-120b",
+#     #     temperature=0,
+#     # )
 
 
 def run_research_tools(

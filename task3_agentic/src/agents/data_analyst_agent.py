@@ -10,8 +10,9 @@ from langchain_core.messages import (
     ToolMessage,
 )
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, StateGraph
+from src.llm.provider import build_llm
 
 # Alternative provider — uncomment when testing Groq.
 # from langchain_groq import ChatGroq
@@ -114,24 +115,24 @@ is unavailable rather than guessing.
 """
 
 
-def build_llm() -> ChatOpenAI:
-    # ---------------------------------------------------------
-    # ACTIVE PROVIDER — OPENAI
-    # ---------------------------------------------------------
-    return ChatOpenAI(
-        model="gpt-5.4-mini",
-        temperature=0,
-    )
+# def build_llm() -> ChatOpenAI:
+#     # ---------------------------------------------------------
+#     # ACTIVE PROVIDER — OPENAI
+#     # ---------------------------------------------------------
+#     return ChatOpenAI(
+#         model="gpt-5.4-mini",
+#         temperature=0,
+#     )
 
-    # ---------------------------------------------------------
-    # ALTERNATIVE PROVIDER — GROQ
-    # Uncomment this implementation when performing
-    # the final Groq test.
-    # ---------------------------------------------------------
-    # return ChatGroq(
-    #     model="openai/gpt-oss-120b",
-    #     temperature=0,
-    # )
+#     # ---------------------------------------------------------
+#     # ALTERNATIVE PROVIDER — GROQ
+#     # Uncomment this implementation when performing
+#     # the final Groq test.
+#     # ---------------------------------------------------------
+#     # return ChatGroq(
+#     #     model="openai/gpt-oss-120b",
+#     #     temperature=0,
+#     # )
 
 
 def analyst_node(
