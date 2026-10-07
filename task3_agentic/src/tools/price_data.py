@@ -11,6 +11,15 @@ def fetch_price_data(ticker: str, period: str = "1y") -> pd.DataFrame:
 
     ticker = ticker.upper().strip()
 
+    period_aliases = {
+        "6m": "6mo",
+    }
+
+    period = period_aliases.get(
+        period.lower().strip(),
+        period
+    )
+
     stock = yf.Ticker(ticker)
     data = stock.history(
         period=period,
@@ -28,7 +37,6 @@ def fetch_price_data(ticker: str, period: str = "1y") -> pd.DataFrame:
     ]
 
     return data
-
 
 def calculate_sma(
     data: pd.DataFrame,

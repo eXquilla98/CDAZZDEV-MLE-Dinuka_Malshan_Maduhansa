@@ -3,31 +3,31 @@
     "2026-10-07": {
       "ticker": "AAPL",
       "date": "2026-10-07",
-      "timestamp": "2026-10-07T16:16:27.310327+00:00",
+      "timestamp": "2026-10-07T17:04:02.247688+00:00",
       "analyst_output": {
         "ticker": "AAPL",
-        "latest_price": 334.8999938964844,
+        "latest_price": 335.9100036621094,
         "price_indicators": {
-          "bollinger_lower": 327.0323958695853,
-          "bollinger_middle": 334.3895004272461,
-          "bollinger_upper": 341.7466049849069,
-          "macd": 3.1305647955762197,
-          "macd_histogram": -0.9293351909034984,
-          "macd_signal": 4.059899986479718,
-          "rsi_14": 55.91654156149646,
-          "sma_200": 290.0724995422363,
-          "sma_50": 322.24440002441406
+          "bollinger_lower": 327.0543318475695,
+          "bollinger_middle": 334.4400009155273,
+          "bollinger_upper": 341.82566998348517,
+          "macd": 3.211254810365972,
+          "macd_histogram": -0.8649349314600681,
+          "macd_signal": 4.07618974182604,
+          "rsi_14": 56.94633504133236,
+          "sma_200": null,
+          "sma_50": 322.26460021972656
         },
-        "annualized_volatility": 0.2108914675800136,
+        "annualized_volatility": 0.21120256038368107,
         "market_sentiment": "positive",
-        "sentiment_score": 0.25,
-        "sentiment_confidence": 0.85,
+        "sentiment_score": 0.19,
+        "sentiment_confidence": 0.78,
         "quantitative_findings": [
-          "AAPL trades at $334.90, well above its 50‑day SMA ($322.24) and 200‑day SMA ($290.07), indicating a strong uptrend.",
-          "RSI at 55.9 suggests momentum is still bullish but not overbought.",
-          "MACD histogram is negative (-0.93) despite MACD line above signal, hinting at potential short‑term pullback.",
-          "30‑day annualized volatility is 21.1%, reflecting moderate price swings.",
-          "Sentiment analysis shows overall positive sentiment (score 0.25) with high confidence (0.85)."
+          "AAPL is trading above its 50‑day SMA (335.91 vs 322.26), indicating short‑term bullish momentum.",
+          "RSI at 56.9 suggests the stock is not overbought nor oversold, staying in a neutral range.",
+          "MACD histogram is negative (-0.86) despite MACD line being below its signal, hinting at potential short‑term downside pressure.",
+          "Annualized volatility of ~21% reflects moderate price swings, consistent with a large‑cap tech stock.",
+          "Market sentiment from recent headlines is overall positive (score 0.19, confidence 0.78), though a notable negative headline about insider share sales exists."
         ]
       },
       "news_results": [
@@ -51,16 +51,16 @@
             "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE9LTThYTXNidkVveHltcS1DTTlueDhva2pPWHdmVUFKal9OWmtzYzlZbWNOeWtYUjRZM1oxaVJacGlPSTJvY0Z1elBZSlhTZzl1S1l6bUlibnFXNFNCZWY3NkdHcURWZTRKUGM2NC1ad1Z4dw?oc=5"
           },
           {
+            "title": "Morgan Stanley Is Bullish on Apple—But With a Catch - MarketBeat",
+            "publisher": "MarketBeat",
+            "published_at": "Wed, 07 Oct 2026 16:42:29 GMT",
+            "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNQW0yVFBQcWlVMXNTaG1yUWJPbDhJbVE5aEJIQTFObXRwdVB4MTk4Y0lGQmRoeUw3cHA4WHZpV25mRGhvbEY4YTFHZ0RIV2EzSDY1LU52d1RkNzVOY3RPV2FDczBNYWtwLTZsZmUzSUhmS2ZQWWxyd0hUYVpFXzd1c3VJV3hnSm5DWWk1dFFZLTc?oc=5"
+          },
+          {
             "title": "Apple (AAPL) executive chair Timothy D. Cook’s trust sells shares and gifts 26,325. - Stock Titan",
             "publisher": "Stock Titan",
             "published_at": "Mon, 05 Oct 2026 22:43:13 GMT",
             "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQMjdPOFFIN2dMN3B6S3ZtLVhuU0ZDR3JIN3pQSVdZZXR3Mld0Q3VXUzJaM0tlT0VmR2Y5cS1YNGYwcXdmaGZZaVVNRkNUSEd4VkZHbnpjOHU3LVdaUXhwZGJDVkdjXzdxdU9Xc0xMR1ZSZ190UncwRVA3a3RkOXZIR3JaSktnMG5JQmgtdXpLbF9YX1ZJN0ZGbkp3cTFidy1CTFlkZURn?oc=5"
-          },
-          {
-            "title": "AAPL Stock Hits Fresh Record As July Rally Nears Best Month In Nearly 4 Years — HSBC Sees Another 10% Upside - Stocktwits",
-            "publisher": "Stocktwits",
-            "published_at": "Sun, 04 Oct 2026 23:56:21 GMT",
-            "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNc0dhWjJ6Nms4ZGtCbVloQ19IYVowckJJWXBFb2Q4b1Fwa0ZBLWZMcllIVGl5ekdUa0tSdE9kQUVicnVlS1EzdEhtek1MZ2hraTlNNDl6VlRzcGZ4ZWpqT1RMc09neXhsaDRtU21Ra2xwWl9ZM1N6bE1EUXBScDB0Wk12TVJleVllazBTWm5TVUF4NEYwbFNhbWhhUVFLeE5kSGFfR2laTGxoeTZPNzl2ay1aNENhZzJzQjJhVjRjQXpfNzJRalMzOTY5VnFrblY3cGJOYTM4LTNlTFIxcm1pNHQwOW9XTTZ0bVRBNzBTSk5iRUlrSUI0NVRZVmFxdw?oc=5"
           },
           {
             "title": "What Would It Take For Apple Stock To Move Higher? - Trefis",
@@ -75,16 +75,16 @@
             "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQa1dWMkFVVzJ6UWNzNV8yQU44WndibmN1dktoWlIxaU9nRDE1NVNqLWxxUWlERmVvN1dMX0tMWTJyNkFkLTlzSXpnaHZtR0N5ZEd1VW1FLU0tLXZoc05uYU5HWGN5VEZSLXhlRVpzNHV6VlJMU0dsQVBqdlZVOUVIT2dINUNXTzlQUnZsX1hQOVk3bkhiaF9TWlRxYlBCcXBJVDNkTDV0V0dkajFTdGZSNVo3TjV0VVVzQURF0gHAAUFVX3lxTE41NHVEeHpFRXlWQk53bENpb0pjTWVjNDNwNzZmU1F4QnllaV9hNTNlY21lY0VKV1l4OFpxZ2hJYnM0Y202eXQ5bTlHbmZ2RGg4Rk1Cd2p5YVpEVkFaVkc0UFJUUm9NMEVVV2tiTlFVOGhUSV83OGlUZk9kdk1aSFFyalhVNEg1Vmp6dHRiMU1PQ2loSzNSQnV1bHhVTDFKN24xbV83VEhTNXlteEUyQ2RKRF93dnZyTS16Z3VpbEZteQ?oc=5"
           },
           {
+            "title": "AAPL Stock Hits Fresh Record As July Rally Nears Best Month In Nearly 4 Years — HSBC Sees Another 10% Upside - Stocktwits",
+            "publisher": "Stocktwits",
+            "published_at": "Sun, 04 Oct 2026 23:56:21 GMT",
+            "url": "https://news.google.com/rss/articles/CBMi_gFBVV95cUxNc0dhWjJ6Nms4ZGtCbVloQ19IYVowckJJWXBFb2Q4b1Fwa0ZBLWZMcllIVGl5ekdUa0tSdE9kQUVicnVlS1EzdEhtek1MZ2hraTlNNDl6VlRzcGZ4ZWpqT1RMc09neXhsaDRtU21Ra2xwWl9ZM1N6bE1EUXBScDB0Wk12TVJleVllazBTWm5TVUF4NEYwbFNhbWhhUVFLeE5kSGFfR2laTGxoeTZPNzl2ay1aNENhZzJzQjJhVjRjQXpfNzJRalMzOTY5VnFrblY3cGJOYTM4LTNlTFIxcm1pNHQwOW9XTTZ0bVRBNzBTSk5iRUlrSUI0NVRZVmFxdw?oc=5"
+          },
+          {
             "title": "Apple Stock Is Trading Near Record Highs. Can It Climb Further? - Morningstar",
             "publisher": "Morningstar",
             "published_at": "Wed, 23 Sep 2026 07:00:00 GMT",
             "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOaFdBRzhyb2pKMmJNOE9OdE9BcHotSWZHYjN5ZWg4cUFWNnhnTTE5ZGJScUlGd2pweDNJMTMweEJTUmcyZkRkc09xdU5FcjlyNVh5bldwVE1RRHZyR1Ywclg5SUFJREppOXgwWEdQcmd3VXhPa2luZm5XWEh5dnZ0VlJsT3hVa1k0aWNxM080Q1d4YWY1WnhKWmZmTG45ZmgxenFLb0gxNXE?oc=5"
-          },
-          {
-            "title": "21,189 Apple Inc. $AAPL Shares Purchased by Munich Reinsurance Co Stock Corp in Munich - MarketBeat",
-            "publisher": "MarketBeat",
-            "published_at": "Wed, 07 Oct 2026 07:43:33 GMT",
-            "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxOWkF1TzlsbU5oYXlYWk95QUJFQ0x1ZVBxRFFqZWZ6ZGdzTnF2UE9YVkRRbHpwbW5VQzFZWWd1Q01YZDd2VmEya05ZVmZuLUlYdWtJZjV3VVVvM1ptX1ZsLS1NcExVdEUyaUVzaUJLQTRHeFRnZy1MdWJlR0RnYXFLZkdYNWRHR2lfYWoxT3VaM0h6ejBDY25OU3owLTZBZTJSVDVGQW1ubmI2QW9aR3hZNXFFUHhhOW5yZWpLNUVEOGFMdjRjTG5VQlR1NEw5b2dNaDJFVzJVamdFR3lk?oc=5"
           },
           {
             "title": "Apple (AAPL): Buy, Sell, or Hold Post Q2 Earnings? - StockStory",
@@ -97,124 +97,80 @@
       "web_results": [
         [
           {
-            "title": "Apple Stock Forecast October 2026: Margins, Demand and Valuation",
-            "url": "https://livetodaystock.com/apple-stock-forecast-october-2026/",
-            "snippet": "Apple's October 2026 preview examines recurring margins, device demand, Services and valuation, using dated Q3 facts without inventing a price target."
-          },
-          {
-            "title": "AAPL Stock Price Today (October 2026) — Apple Inc. Analysis & Key ...",
-            "url": "https://tickzen.app/stocks/aapl/overview",
-            "snippet": "Apple Inc. (AAPL) stock is at $333.69, up 1.02%. Analyst target: $328.09 (-1.7% downside). Stock overview including real-time price analysis, analyst price targets, key financial metrics, and market performance data. Updated October 2026."
-          },
-          {
-            "title": "Apple (AAPL) Stock Forecast & Analyst Price Targets",
-            "url": "https://stockanalysis.com/stocks/aapl/forecast/",
-            "snippet": "Stock forecasts and analyst price target predictions for Apple Inc. (AAPL) stock, with detailed revenue and earnings estimates."
-          },
-          {
-            "title": "Apple Inc. (AAPL) Stock Forecast & Price Target — Oct 2026",
-            "url": "https://tickflow.io/stock/AAPL/forecast",
-            "snippet": "62 analysts cover AAPL with a consensus price target of $339.35 (+2.4% upside). View latest forecasts, analyst ratings, and earnings estimates on TickFlow."
-          },
-          {
-            "title": "Apple Inc. (AAPL) Analyst Insights, Price Targets & Recommendations ...",
-            "url": "https://finance.yahoo.com/quote/AAPL/analyst-insights/",
-            "snippet": "Yahoo Finance provides the latest analyst insights, price targets, and recommendations on Apple Inc. (AAPL) to help inform your investment strategy."
-          },
-          {
             "title": "Apple (AAPL) Stock Forecast 2026: Price Target & Rating | Nemo",
             "url": "https://explore.nemo.money/en/stocks/AAPL",
-            "snippet": "Analyst price target, consensus rating, live price, and the consumer devices leader with a strong services business explained simply. Updated October 2026. Capital at risk."
+            "snippet": "Key risks are concentration of revenue in iPhone sales, supply-chain and manufacturing exposure, intensifying competition, and regulatory scrutiny in multiple markets. As with any equity, share prices can fall as well as rise."
           },
           {
-            "title": "AAPL | Apple Inc. Analyst Estimates & Ratings - WSJ",
-            "url": "https://www.wsj.com/market-data/quotes/AAPL/research-ratings",
-            "snippet": "Apple Inc. analyst ratings, historical stock prices, earnings estimates & actuals. AAPL updated stock price target summary."
-          },
-          {
-            "title": "Apple Inc.: Analyst Recommendations and Opinions | AAPL | US0378331005 ...",
-            "url": "https://m.marketscreener.com/quote/stock/APPLE-INC-4849/news-broker-research/",
-            "snippet": "Apple Inc.: Financial analyst guidance for Apple Inc. Stock | Nasdaq: AAPL | Nasdaq"
-          },
-          {
-            "title": "Apple Inc. (AAPL) Analyst Ratings, Estimates & Forecasts - Yahoo Finance",
-            "url": "https://ca.finance.yahoo.com/quote/AAPL/analysis/",
-            "snippet": "See Apple Inc. (AAPL) stock analyst estimates, including earnings and revenue, EPS, upgrades and downgrades."
-          },
-          {
-            "title": "Apple (AAPL) Q3 2026 Earnings Call Transcript & Audio",
-            "url": "https://stockanalysis.com/stocks/aapl/transcripts/658553-q3-2026/",
-            "snippet": "Full Q3 2026 earnings call transcript and audio for Apple (AAPL), with commentary from Tim Cook (CEO), Kevan Parekh (CFO), John Ternus (Incoming CEO), and others."
-          }
-        ],
-        [
-          {
-            "title": "Apple Stock Forecast October 2026: Margins, Demand and Valuation",
+            "title": "Apple Stock Forecast October 2026: Margins, Demand and ...",
             "url": "https://livetodaystock.com/apple-stock-forecast-october-2026/",
             "snippet": "Sep 13, 2026 · Apple’s October 2026 preview examines recurring margins, device demand, Services and valuation, using dated Q3 facts without inventing a price target."
           },
           {
+            "title": "Apple Inc. (AAPL) Stock Forecast & Price Target — Oct 2026",
+            "url": "https://tickflow.io/stock/AAPL/forecast",
+            "snippet": "17 hours ago · 62 analysts cover AAPL with a consensus price target of $339.35 (+2.4% upside). View latest forecasts, analyst ratings, and earnings estimates on TickFlow."
+          },
+          {
+            "title": "AAPL Stock Price Today (October 2026) — Apple Inc. Analysis ...",
+            "url": "https://tickzen.app/stocks/aapl/overview",
+            "snippet": "5 days ago · What are the biggest risks facing AAPL stock? The primary risks for AAPL investors include debt exposure and competitive dynamics in the Consumer Electronics industry. $84.34B in debt could be a headwind in a high-rate environment. Fierce competition from established players in Consumer Electronics."
+          },
+          {
+            "title": "Apple Inc. (AAPL) Risk Analysis & Market Sentiment | Tickzen",
+            "url": "https://tickzen.app/stocks/aapl/risks-sentiment",
+            "snippet": "5 days ago · Apple Inc. (AAPL) stock is at $333.69, up 1.02%. Analyst target: $328.09 (-1.7% downside). Comprehensive risk analysis with Value at Risk, sentiment analysis, and market psychology indicators. Updated October 2026."
+          },
+          {
+            "title": "Apple (AAPL) Stock Forecast & Price Target (2026)",
+            "url": "https://clearank.com/stock/apple-aapl/",
+            "snippet": "17 hours ago · While the median analyst price target of $340.00 suggests a modest upside of 1.9%, the overall analyst consensus is 'Hold', reflecting a cautious outlook given these competing factors."
+          },
+          {
             "title": "Apple Stock Forecast 2026, 2027 & 2030 | Markets.com",
             "url": "https://www.markets.com/analysis/apple-stock-forecast",
-            "snippet": "Jul 30, 2026 · Explore the Apple stock forecast for 2026, 2027 and 2030, including analyst targets, earnings, valuation, key drivers, technical levels and major risks."
-          },
-          {
-            "title": "Apple Stock Analysis 2026: Is $250–$300 the New Normal?",
-            "url": "https://www.analyticsinsight.net/stocks/apple-stock-analysis-2026-is-250300-the-new-normal",
-            "snippet": "May 5, 2026 · Apple stock shows steady growth with strong earnings, high service revenue, and global demand. Despite risks like AI competition and valuation, the long-term outlook remains stable and positive. Apple earns strong profits due to high-margin services and loyal customers. iPhone demand continues to ..."
-          },
-          {
-            "title": "Apple Inc. (AAPL) Stock Forecast & Price Prediction 2026–2031",
-            "url": "https://midforex.com/stocks/aapl-forecast",
-            "snippet": "1 hour ago · Get Apple Inc. (AAPL) stock price prediction and forecast. Expert AI-powered AAPL predictions, daily & monthly forecasts, technical analysis, market trends & investment insights on MidForex."
-          },
-          {
-            "title": "Apple (AAPL) Stock Forecast & Analyst Price Targets",
-            "url": "https://stockanalysis.com/stocks/aapl/forecast/",
-            "snippet": "1 hour ago · Stock forecasts and analyst price target predictions for Apple Inc. (AAPL) stock, with detailed revenue and earnings estimates."
+            "snippet": "Jul 30, 2026 · This Apple stock forecast compares the latest AAPL stock forecast data with 2026, 2027 and 2030 scenarios, technical levels, business drivers and trading risks for beginner traders."
           }
         ]
       ],
       "final_report": {
         "ticker": "AAPL",
-        "financial_health_summary": "Apple (AAPL) is trading at $334.90, comfortably above its 50‑day SMA ($322.24) and 200‑day SMA ($290.07), indicating a strong uptrend. The RSI of 55.9 shows bullish momentum without being overbought. MACD remains positive but the histogram is negative, hinting at a possible short‑term pullback. Annualized volatility of 21.1% suggests moderate price swings. Overall quantitative signals point to solid financial health with upside potential, though short‑term caution is warranted.",
+        "financial_health_summary": "Apple (AAPL) is trading at $335.91, above its 50‑day SMA of $322.26, indicating short‑term bullish momentum. The RSI of 56.9 suggests the stock is neither overbought nor oversold. MACD shows a negative histogram (-0.86) despite the MACD line being below its signal, hinting at potential short‑term downside pressure. Annualized volatility is ~21%, reflecting moderate price swings typical for a large‑cap tech stock. Overall market sentiment is positive (score 0.19, confidence 0.78).",
         "market_sentiment": "positive",
-        "sentiment_score": 0.25,
+        "sentiment_score": 0.19,
         "top_three_risks": [
           {
-            "risk": "Uncertainty around the market reception of the upcoming foldable iPhone could depress sales and earnings in the next 90 days.",
+            "risk": "Revenue concentration on iPhone sales and potential demand slowdown",
             "evidence": [
-              "Jim Cramer is urging investors to buy Apple stock ahead of foldable iPhone launch - Quartz (https://news.google.com/rss/articles/CBMickFVX3lxTE9LTThYTXNidkVveHltcS1DTTlueDhva2pPWHdmVUFKal9OWmtzYzlZbWNOeWtYUjRZM1oxaVJacGlPSTJvY0Z1elBZSlhTZzl1S1l6bUlibnFXNFNCZWY3NkdHcURWZTRKUGM2NC1ad1Z4dw?oc=5)",
-              "Apple’s upcoming foldable iPhone launch introduces product‑demand uncertainty for the next quarter."
-            ],
-            "severity": "medium"
-          },
-          {
-            "risk": "Recent insider selling by Tim Cook’s trust could be interpreted as a lack of confidence, potentially prompting a short‑term sell‑off.",
-            "evidence": [
-              "Apple (AAPL) executive chair Timothy D. Cook’s trust sells shares and gifts 26,325. - Stock Titan (https://news.google.com/rss/articles/CBMipgFBVV95cUxQMjdPOFFIN2dMN3B6S3ZtLVhuU0ZDR3JIN3pQSVdZZXR3Mld0Q3VXUzJaM0tlT0VmR2Y5cS1YNGYwcXdmaGZZaVVNRkNUSEd4VkZHbnpjOHU3LVdaUXhwZGJDVkdjXzdxdU9Xc0xMR1ZSZ190UncwRVA3a3RkOXZIR3JaSktnMG5JQmgtdXpLbF9YX1ZJN0ZGbkp3cTFidy1CTFlkZURn?oc=5)",
-              "Insider selling by Tim Cook’s trust may signal reduced confidence and can trigger negative sentiment."
+              "Key risks are concentration of revenue in iPhone sales, supply-chain and manufacturing exposure, intensifying competition, and regulatory scrutiny in multiple markets. (Nemo forecast article)",
+              "Apple’s iPhone remains the dominant revenue driver, making the stock vulnerable to any slowdown in flagship device demand."
             ],
             "severity": "high"
           },
           {
-            "risk": "Elevated valuation and record‑high price levels increase the probability of a corrective pullback if upcoming earnings or guidance disappoint.",
+            "risk": "Supply‑chain and manufacturing exposure (component shortages, production delays)",
             "evidence": [
-              "AAPL Stock Hits Fresh Record As July Rally Nears Best Month In Nearly 4 Years — HSBC Sees Another 10% Upside - Stocktwits (https://news.google.com/rss/articles/CBMi_gFBVV95cUxNc0dhWjJ6Nms4ZGtCbVloQ19IYVowckJJWXBFb2Q4b1Fwa0ZBLWZMcllIVGl5ekdUa0tSdE9kQUVicnVlS1EzdEhtek1MZ2hraTlNNDl6VlRzcGZ4ZWpqT1RMc09neXhsaDRtU21Ra2xwWl9ZM1N6bE1EUXBScDB0Wk12TVJleVllazBTWm5TVUF4NEYwbFNhbWhhUVFLeE5kSGFfR2laTGxoeTZPNzl2ay1aNENhZzJzQjJhVjRjQXpfNzJRalMzOTY5VnFrblY3cGJOYTM4LTNlTFIxcm1pNHQwOW9XTTZ0bVRBNzBTSk5iRUlrSUI0NVRZVmFxdw?oc=5)",
-              "Apple is trading near record highs, raising valuation concerns and increasing the risk of a correction if earnings or guidance fall short."
+              "Key risks are concentration of revenue in iPhone sales, supply-chain and manufacturing exposure, intensifying competition, and regulatory scrutiny in multiple markets. (Nemo forecast article)",
+              "Supply‑chain disruptions have historically impacted Apple’s ability to meet launch timelines and margins."
+            ],
+            "severity": "medium"
+          },
+          {
+            "risk": "Regulatory scrutiny and potential antitrust actions",
+            "evidence": [
+              "Key risks are concentration of revenue in iPhone sales, supply-chain and manufacturing exposure, intensifying competition, and regulatory scrutiny in multiple markets. (Nemo forecast article)",
+              "Morgan Stanley Is Bullish on Apple—But With a Catch (MarketBeat) highlights regulatory scrutiny as a downside catalyst."
             ],
             "severity": "medium"
           }
         ],
         "hedge_strategy_recommendation": {
-          "strategy": "Buy a protective put option ~5% below the current price (~$317) and sell a covered call ~5% above the current price (~$352). This creates a collar that limits loss to ~5% while capping upside at ~5%, suitable for a 90‑day horizon.",
-          "rationale": "The quantitative profile shows upside bias but also a short‑term pullback signal (negative MACD histogram) and moderate volatility. A collar (protective put financed by a covered call) caps downside while preserving most upside, aligning with the current risk‑reward balance.",
+          "strategy": "Implement a collar: buy a protective put with a strike near the Bollinger lower band (~$327) and sell a covered call at the Bollinger upper band (~$342). This caps potential loss to roughly 2.6% while limiting the cost of protection through the call premium.",
+          "rationale": "Combine the bullish bias from price above the 50‑day SMA with the downside warning from the negative MACD histogram and proximity to the Bollinger lower band. A collar limits downside while capping upside, fitting the moderate volatility environment.",
           "data_support": [
-            "Price above 50‑day and 200‑day SMAs (Agent A quantitative findings)",
-            "RSI 55.9 indicating bullish but not overbought (Agent A)",
-            "MACD histogram negative, suggesting short‑term pullback risk (Agent A)",
-            "Annualized volatility 21.1% (moderate) (Agent A)",
-            "Positive market sentiment score 0.25 (Agent A)"
+            "Current price $335.91 is above the 50‑day SMA ($322.26) – bullish bias but MACD histogram is negative, indicating downside risk.",
+            "Bollinger lower band at $327.05 provides a technical support level; a breach would imply a ~2.6% drop.",
+            "Annualized volatility of 21% suggests option premiums are reasonably priced for protective structures."
           ]
         }
       }
