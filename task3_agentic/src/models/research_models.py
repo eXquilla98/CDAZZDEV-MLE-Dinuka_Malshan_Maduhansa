@@ -30,3 +30,51 @@ class ResearchReport(BaseModel):
     )
 
     hedge_strategy_recommendation: HedgeStrategy
+
+class DataAnalystOutput(BaseModel):
+    """
+    Structured handoff from the Data Analyst agent to
+    the Research Writer agent.
+    """
+
+    ticker: str
+
+    latest_price: float
+
+    price_indicators: dict[str, float | None]
+
+    annualized_volatility: float
+
+    market_sentiment: Sentiment
+
+    sentiment_score: float = Field(
+        ge=-1.0,
+        le=1.0,
+    )
+
+    sentiment_confidence: float = Field(
+        ge=0.0,
+        le=1.0,
+    )
+
+    quantitative_findings: list[str]
+
+
+class ClarificationRequest(BaseModel):
+    """
+    Structured clarification request from the
+    Research Writer agent to the Data Analyst agent.
+    """
+
+    question: str
+
+
+class ClarificationResponse(BaseModel):
+    """
+    Structured response from the Data Analyst agent
+    to the Research Writer agent.
+    """
+
+    answer: str
+
+    supporting_data: list[str]
